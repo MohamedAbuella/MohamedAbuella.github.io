@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <meta charset='utf-8'>
+   <meta name='generator' content='Pluto 1.5.0 on Ruby 2.6.0 (2018-12-25) [x86_64-darwin18]'>
+   <title>Planet Ruby</title>
+
+   <link rel='stylesheet' type='text/css' href='css/font-awesome.css'>
+   <link rel='stylesheet' type='text/css' href='css/blank.cards.css'>
+
+  <!-- fix: use script_tag  rails-style ??? -->
+  <script src='js/jquery-2.0.3.min.js'></script>
+  <script src='js/blank.js'></script>
+
+  
+  
+  </head>
+  <body>
+
+
+<div id='opts'>
+  <div style='width: 100%; text-align: right;'>
+   <img src='i/view-headlines.png' id='show-headlines' title='Show Headlines Only' width='24' height='24'>
+   <img src='i/view-snippets.png' id='show-snippets'    title='Show Snippets' width='24' height='24'>
+   <img src='i/view-standard.png' id='show-fulltext'    title='Show Full Text' width='24' height='24'>
+  </div>
+  <div style='width: 100%; text-align: right;'>
+    Style | 
+      <a href='planet.html'>Standard</a> &bull;
+      <a href='planet.cards.html'>Cards</a>    
+  </div>
+</div>
+
+
+<h1>
+  Planet Ruby
+  <span class='small'>
+  Last Update:
+   
+  </span>
+</h1>
+
+
+<!-- use a table w/ two colums -->
+
+
+<table>
+  <colgroup>
+    <col width='50%'>
+    <col width='50%'>
+  </colgroup>
+<tr>
+
+
+
+<td valign='top'>
+  <!-- start new column -->
+
+  
+
+
+
+<article class='item'>
+
+<h4 class='feed-title'>
+  <span class='feed-title'>
+    <a href='https://tt-rss.org'>rss-repost</a>
+  </span>
+  <span class='item-published'>
+     - 
+      <!-- fix/todo: show year if not current year
+           e.g. use "%b %d, '%y"
+         -->
+     Mar 29
+  </span>
+</h4>
+
+
+<h3 class='item-title'>
+  <i class='icon-caret-down item-collapse item-close item-opened'></i>
+  <i class='icon-caret-right item-expand item-open item-closed'></i>
+  <span class='item-title'>
+    <a href='http://publications.jrc.ec.europa.eu:80/repository/handle/JRC115958'>The potential role of H2 production in a sustainable future power system</a>
+   </span>
+</h3>
+
+<div class='item-body'>
+  
+<div class='item-snippet'>
+<!-- use 'smarter' algorithm for cutoff snippet text
+   note: summary goes first; than try content -->
+
+  <p>Title: The potential role of H2 production in a sustainable future power system
+Authors: KANELLOPOUL...</p>
+
+
+ <span class='item-time-ago-in-words'>
+ 3 days ago
+ </span>  
+</div>
+
+<div class='item-content item-summary'>
+
+<!-- todo: use sanitize or simplify or whitelist
+   - todo/fix: check why summary can be nil/null
+   note: content goes first; than try summary
+ -->
+
+  <p>Title: The potential role of H2 production in a sustainable future power system
+Authors: KANELLOPOULOS KONSTANTINOS; BLANCO REANO HERIB
+Publication Date: 2019-03-12
+Type: EUR - Scientific and Technical Research Reports
+JRC N&deg;: JRC115958</p>
+
+
+ <span class='item-time-ago-in-words'>
+ 3 days ago
+ </span>  
+  
+</div>
+
+</div> <!-- item-body -->
+</article><!-- item -->
+
+
+  <!-- each item (inside column) -->
+ </td>
+
+
+
+<td valign='top'>
+  <!-- start new column -->
+
+  <!-- each item (inside column) -->
+ </td>
+
+<!-- each column-->
+  </tr>
+</table>
+
+</body>
+</html>
