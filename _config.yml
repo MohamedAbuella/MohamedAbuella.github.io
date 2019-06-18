@@ -8,39 +8,23 @@ plugins:
   
 url: http://MohamedAbuella.github.io
 
-navigation:
-- root: Home
-  url: /
-- root: CV
-  url: /cv
-- root: Blog
-  url: /blog
-  first-level:
-    - text: Tags
-      url: /blog/tags/index.html
-- root: Publications
-  url: /publications
-- root: Library
-  url: /library
-  first-level:
-    - text: 100 % Renewables
-      url: /library/renewables/index.html
-    - text: Integrated Assessment Models
-      url: /library/iam/index.html
-    - text: EU ETS & Carbon Leakage List
-      url: /library/eu-ets/index.html
-    - text: Copernicus Climate Change
-      url: /library/copernicus/index.html
-- root: Agenda
-  url: /agenda
-- root: Twitter Threads
-  url: /twitter
-  icon: /icons/twitter.jpg
-  first-level:
-    - text: 04/05/19 - EU Water Stress [FR/BE case & Copernicus ECMWF forecast]
-      url: /twitter/water/index.html
-    - text: 27/02/19 - Quantitative Easing for the Climate
-      url: /twitter/qe-climate/index.html
+#navigation:
+#- root: Home
+#  url: /
+#- root: CV
+#  url: /cv
+#- root: Blog
+#  url: /blog
+
+#- root: Publications
+#  url: /publications
+#- root: Library
+#  url: /library
+#- root: Agenda
+#  url: /agenda
+#- root: Twitter Threads
+#  url: /twitter
+#  icon: /icons/twitter.jpg
 #- root: EIB Climate & Energy
  # url: /eib-consultation
  # icon: icon-you-want-1
