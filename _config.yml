@@ -1,0 +1,54 @@
+name: Mohamed Abuella
+author: Mohamed Abuella
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+  
+url: http://MohamedAbuella.github.io
+
+navigation:
+- root: Home
+  url: /
+- root: CV
+  url: /cv
+- root: Blog
+  url: /blog
+  first-level:
+    - text: Tags
+      url: /blog/tags/index.html
+- root: Publications
+  url: /publications
+- root: Library
+  url: /library
+  first-level:
+    - text: 100 % Renewables
+      url: /library/renewables/index.html
+    - text: Integrated Assessment Models
+      url: /library/iam/index.html
+    - text: EU ETS & Carbon Leakage List
+      url: /library/eu-ets/index.html
+    - text: Copernicus Climate Change
+      url: /library/copernicus/index.html
+- root: Agenda
+  url: /agenda
+- root: Twitter Threads
+  url: /twitter
+  icon: /icons/twitter.jpg
+  first-level:
+    - text: 04/05/19 - EU Water Stress [FR/BE case & Copernicus ECMWF forecast]
+      url: /twitter/water/index.html
+    - text: 27/02/19 - Quantitative Easing for the Climate
+      url: /twitter/qe-climate/index.html
+#- root: EIB Climate & Energy
+ # url: /eib-consultation
+ # icon: icon-you-want-1
+ # first-level:
+  #  - text: EIB Documentation
+   #   url: /eib-consultation/eib/index.html
+     # second-level:
+     #   - text: Second Level
+     #     url: second-level-link.html
+   # - text: Climate Change & Finance
+   #   url: /eib-consultation/cc-cb/index.html
