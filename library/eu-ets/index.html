@@ -1,0 +1,21 @@
+---
+layout: default
+title: EU ETS & Carbon Leakage List
+---
+
+<div class="container">
+	<div class="blurb">
+		<h1>
+			EU ETS & Carbon Leakage List
+		</h1>
+	</div><!-- /.blurb -->
+    <table id="pubTable" class="display"></table>
+  	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script type="text/javascript" src="../../build/bib-list.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+    	bibtexify("eu-ets.bib", "pubTable", {'tweet': 'FlorianDRX'});
+    });
+	</script>
+	<br>
+</div>

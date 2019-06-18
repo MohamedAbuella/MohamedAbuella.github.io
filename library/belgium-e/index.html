@@ -1,0 +1,31 @@
+---
+layout: default
+title: Belgian Energy Policy Documentation
+---
+
+<div class="container">
+	<div class="blurb">
+		<h1>
+			Belgian Energy Policy Documentation
+		</h1>
+	    <p> Below bibliography includes information from:  
+			<li class="paragraph-list">CREG</li>
+	        <li class="paragraph-list">Crystal Super Grid</li>
+	        <li class="paragraph-list">Elia: Electricy Scenarios for Belgium & Federal Development Plan</li>
+		    <li class="paragraph-list">Energy Balance Flanders</li>
+			<li class="paragraph-list">FEBEG: Conferences, Network Codes, Peer-to-Peer Energy Sharing & Smart Meters</li>
+			<li class="paragraph-list">Pentalateral Energy Forum & North Sea</li>
+			<li class="paragraph-list">STATBEL FOD</li>
+			<li class="paragraph-list">VREG</li>
+	    </p>
+	</div><!-- /.blurb -->
+    <table id="pubTable" class="display"></table>
+  	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script type="text/javascript" src="../../build/bib-list.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+    	bibtexify("belgium-e.bib", "pubTable", {'tweet': 'FlorianDRX'});
+    });
+	</script>
+	<br>
+</div>
