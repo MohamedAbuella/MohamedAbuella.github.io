@@ -1,1 +1,1 @@
-This is my personal website is built on GitHub pages
+This is my personal website which is built on GitHub pages
