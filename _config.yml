@@ -8,25 +8,23 @@ plugins:
   
 url: http://MohamedAbuella.github.io
 
-navigation:
-- root: Home
-  url: /
-- root: CV
-  url: /cv
-- root: Blog
-  url: /blog
-  first-level:
-    - text: Tags
-      url: /blog/tags/index.html
-- root: Publications
-  url: /publications
-- root: Library
-  url: /library
-- root: Agenda
-  url: /agenda
-- root: Twitter Threads
-  url: /twitter
-  icon: /icons/twitter.jpg
+#navigation:
+#- root: Home
+#  url: /
+#- root: CV
+#  url: /cv
+#- root: Blog
+#  url: /blog
+
+#- root: Publications
+#  url: /publications
+#- root: Library
+#  url: /library
+#- root: Agenda
+#  url: /agenda
+#- root: Twitter Threads
+#  url: /twitter
+#  icon: /icons/twitter.jpg
 #- root: EIB Climate & Energy
  # url: /eib-consultation
  # icon: icon-you-want-1
