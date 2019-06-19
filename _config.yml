@@ -9,9 +9,9 @@ plugins:
 url: http://MohamedAbuella.github.io
 
 navigation:
-- root: Home
+- root: <h2>Home
   url: /
-- root: CV
+- root: <h2>CV
   url: /cv
 #- root: Blog
 #  url: /blog
