@@ -1,0 +1,38 @@
+name: Mohamed Abuella
+author: Mohamed Abuella
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+  
+url: http://MohamedAbuella.github.io
+
+navigation:
+- root: Home
+  url: /
+- root: CV
+  url: /cv
+#- root: Blog
+#  url: /blog
+
+#- root: Publications
+#  url: /publications
+#- root: Library
+#  url: /library
+#- root: Agenda
+#  url: /agenda
+#- root: Twitter Threads
+#  url: /twitter
+#  icon: /icons/twitter.jpg
+#- root: EIB Climate & Energy
+ # url: /eib-consultation
+ # icon: icon-you-want-1
+ # first-level:
+  #  - text: EIB Documentation
+   #   url: /eib-consultation/eib/index.html
+     # second-level:
+     #   - text: Second Level
+     #     url: second-level-link.html
+   # - text: Climate Change & Finance
+   #   url: /eib-consultation/cc-cb/index.html
