@@ -11,8 +11,9 @@ url: http://MohamedAbuella.github.io
 navigation:
 - root: Home
   url: /
-- root: CV
-  url: /cv
+- root: CV  - root: Ch.1  
+  url: /cv 
+  
 #- root: Blog
 #  url: /blog
 
