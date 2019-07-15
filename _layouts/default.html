@@ -19,7 +19,6 @@
 	<script src="https://hypothes.is/embed.js" async></script>
 	<!-- Enable Altmetric badges loading -->
 	<script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
-	
     <title>{{ page.title }}</title>
 	<!-- jquery -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -27,9 +26,25 @@
     <link rel="stylesheet" type="text/css" href="/css/main.css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 	<link rel="stylesheet" href="/css/academicons.min.css"/>
+	<script>
+		$(document).ready(function(){ 
+		    $(window).scroll(function(){ 
+		        if ($(this).scrollTop() > 100) { 
+		            $('#scroll').fadeIn(); 
+		        } else { 
+		            $('#scroll').fadeOut(); 
+		        } 
+		    }); 
+		    $('#scroll').click(function(){ 
+		        $("html, body").animate({ scrollTop: 0 }, 600); 
+		        return false; 
+		    }); 
+		});
+	</script>
 </head>
 
 <body>
+	<a href="#" id="scroll" style="display: none;"></a>
     <nav>
 		<ul class="navigation" style="clear:both;">
 		      {% for link in site.navigation %}
@@ -88,14 +103,45 @@
 	</script>
 	<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 	{% endif %}
-    <footer style="background-image: url('/icons/banner.jpeg')">	
-        <ul>
-            <li><!--<i class="fas fa-envelope" data-fa-transform="left-6" style="color:#adbacc"></i>--><a href="mailto:mhdabuella@gmail.com" class="footlink"> Email</a></li>
-            <li><!--<i class="fab fa-github" data-fa-transform="left-6" style="color:#adbacc"></i>--><a href="https://github.com/mhdella" class="footlink"> github.com/mhdella</a></li>
-        </ul>
-		<img src="/icons/banner.jpeg" alt="banner image" class="bannerImage" />
-    </footer>
-	<ul align="right">Website last updated on: 19 June 2019</ul>
+    <footer style="background-image: url('/icons/banner.jpeg')">
+	<div class="container-footer">
+		<img src="/icons/banner.jpeg" alt="banner image" class="bannerImage">
+		<div class="top-left">
+			<ul>
+				<li>
+					<!--<i class="fas fa-envelope" data-fa-transform="left-6" style="color:#adbacc"></i>--><a href="mailto:floriandierickx@gmail.com" class="footlink">Email</a>
+				</li>
+				<li>
+					<!--<i class="fab fa-github" data-fa-transform="left-6" style="color:#adbacc"></i>--> <a href="https://github.com/floriandierickx" class="footlink" target="_blank">github.com/floriandierickx</a>
+				</li>
+			</ul>
+		</div>
+		<div class="bottom-left">
+			<ul>
+				<li class="bottom">
+					<p class="foottext">Powered by
+						<a href="https://jekyllrb.com" class="footlink" target="_blank">Jekyll</a> [<a href="https://github.com/jekyll/jekyll-feed" class="footlink" target="_blank">feed</a>, 
+						<a href="https://github.com/feedreader/jekyll-planet" class="footlink" target="_blank">planet</a>], 
+						<a href="https://hypothes.is/users/floriandierickx" class="footlink" target="_blank">hypothes.is</a>, 
+						<a href="https://github.com/hrbrmstr" class="footlink" target="_blank">@hrbrmstr</a> <a href="https://github.com/hrbrmstr/tweetview" class="footlink" target="_blank">TweetView</a>, <br>
+						<a href="https://github.com/vkaravir/bib-publication-list" class="footlink" target="_blank">bib-publication-list</a>, 
+						<a href="https://fontawesome.com/start" class="footlink" target="_blank">fontawesome</a>, 
+						<a href="https://jpswalsh.github.io/academicons/" class="footlink" target="_blank">academicons</a>, 
+						<a href="https://www.altmetric.com" class="footlink" target="_blank">altmetric</a> and
+						<a href="https://disqus.com" class="footlink" target="_blank">disqus</a>
+					</p>
+				</li>
+			</ul>
+		</div>
+		<div class="bottom-right">
+			<ul>
+				<li class="bottom"><p class="foottext">3 July 2019</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+</footer>
+
 </body>
 
 </html>
