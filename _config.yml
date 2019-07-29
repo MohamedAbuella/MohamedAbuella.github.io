@@ -13,8 +13,8 @@ navigation:
   url: /
 - root: CV
   url: /cv
-#- root: Blog
-#  url: /blog
+root: Blog
+url: /blog
 
 #- root: Publications
 #  url: /publications
