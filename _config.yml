@@ -8,13 +8,13 @@ plugins:
   
 url: http://MohamedAbuella.github.io
 
-#navigation:
-#- root: Home
-#  url: /
-#- root: CV
-#  url: /cv
-#- root: Blog
-#  url: /blog
+navigation:
+- root: Home
+  url: /
+- root: CV
+  url: /cv
+- root: Blog
+  url: /blog
 
 #- root: Publications
 #  url: /publications

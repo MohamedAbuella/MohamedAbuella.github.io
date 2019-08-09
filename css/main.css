@@ -1,3 +1,47 @@
+/*------------>*/
+/*--Tweetview->*/
+/*------------>*/
+
+/* .tweet-para {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: 300;
+  font-size: 1em;
+  line-height: 1.3em;
+  border: 0.5px solid rgba(27, 40, 54, 0.5);;
+  border-radius: 5px;
+  width: 494px;
+  display: block;
+  padding: 12px 6px 12px 6px;
+  margin-bottom: 4pt;
+}
+ = original formatting */
+
+.tweet-para {
+    font-size: 1.5em;
+    line-height: 1.4em;
+    color: #333;
+}
+
+a.tweet-lnk {
+  font-size: 100%;
+  line-height: 1.3em;
+  text-decoration: none;
+  color:rgb(29, 161, 242)
+}
+
+img.twimg {
+  display: block;
+  max-width:1vw;
+  border: 0.50px dotted black;
+  margin-top:12px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom:12px;
+}
+
+
+
+
 /*--------->*/
 /*--IFRAME->*/
 /*--------->*/
@@ -29,6 +73,15 @@ padding: 0 .5rem;
 margin-right: 0;
 border-radius: 4px;
 font-size: 90%;
+}
+
+.tag-page {
+display: inline-block;
+background: rgba(106,159,181,0.15);
+padding: 0 .5rem;
+margin-right: 0;
+border-radius: 4px;
+font-size: 150%;
 }
 
 /*--------->*/
@@ -64,7 +117,6 @@ font-size: 90%;
 }
 
 
-
 /*--IMAGES-->*/
 
 img {
@@ -95,7 +147,7 @@ img {
 	float: left;
     color: #333;
     font-weight: normal;
-    font-size: 15px;
+    font-size: 20px;
     border-radius: 5px;
     padding: 8px 0px;
     display: block;
@@ -168,6 +220,10 @@ img {
     left: 100%;
     top: 0;
 }
+
+
+/*--Footer-->*/
+
 nav ul, footer ul {
     font-family:'Helvetica', 'Arial', 'Sans-Serif';
     padding: 0px;
@@ -180,6 +236,46 @@ nav ul li, footer ul li {
     margin-right: 20px;
 }
 
+nav ul li, footer ul li.bottom {
+	float: left;
+    display: inline;
+    margin-right: 20px;
+	margin-block-end: 0px;
+}
+
+/*--Footer Fiddling-->*/
+
+.container-footer {
+  position: relative;
+  text-align: center;
+  color: black;
+}
+
+.top-left {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+}
+
+.bottom-left {
+  position: absolute;
+  bottom: 8px;
+  left: 16px;
+}
+
+.bottom-right {
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+}
+
+.container-footer ul {
+margin-block-start: 0px;
+margin-block-end: 0px;
+margin-bottom: 0px;
+}
+
+
 /*--CSS FOR TABLE:-->*/
 
 .dataTables_filter {
@@ -189,7 +285,6 @@ nav ul li, footer ul li {
 	font-family:'Raleway', 'Arial', 'Sans-Serif';
 }
 a:any-link {
-	color: -webkit-link;
 }
 span.undefined {
 	color: red;
@@ -376,21 +471,32 @@ font-size: 125%;
 }
 a {
     text-decoration: none;
-    color: #999;
 }
 /*a:hover {
     text-decoration: underline;
 }*/
-h1 {
+
+/*h1 {
     font-size: 3em;
     font-family:'Helvetica', 'Arial', 'Sans-Serif';
+}*/
+
+h1 {
+font-size: 1.5em;
+font-family: 'Helvetica','Sans-Serif';
+background: #b8c2b1;
+font-weight: bold;
+padding: 5px;
 }
+
+
 h2 {
-    font-size: 2em;
-    font-family:'Helvetica', 'Arial', 'Sans-Serif';
+font-size: 1.5em;
+font-family: 'Helvetica', 'Arial', 'Sans-Serif';
+background-color: beige;
 }
 p {
-    font-size: 1.5em;
+    font-size: 1.3em;
     line-height: 1.4em;
     color: #333;
 }
@@ -403,7 +509,6 @@ footer {
 	bottom: 0;
 	left: 0;
     font-size: 0.9em;
-	text-indent: 3%;
 	text-align: center;
 }
 .bannerImage {
@@ -413,7 +518,14 @@ footer {
 }
 .footlink {
     color: #adbacc !important;
+	text-decoration: underline;
 }
+
+p.foottext {
+	font-size: 0.9em;
+    color: #adbacc !important;
+}
+
 .footlink:visited
 {
     background-color: #adbacc; 
@@ -429,4 +541,40 @@ ul.posts {
 
 ul.posts li {
     list-style: none;
+}
+
+/*-------------->*/
+/*--SCROLLING-->*/
+/*-------------->*/
+
+
+#scroll {
+    position:fixed;
+    right:10px;
+    bottom:10px;
+    cursor:pointer;
+    width:50px;
+    height:50px;
+    background-color:#3498db;
+    text-indent:-9999px;
+    display:none;
+    -webkit-border-radius:60px;
+    -moz-border-radius:60px;
+    border-radius:60px
+}
+#scroll span {
+    position:absolute;
+    top:50%;
+    left:50%;
+    margin-left:-8px;
+    margin-top:-12px;
+    height:0;
+    width:0;
+    border:8px solid transparent;
+    border-bottom-color:#ffffff;
+}
+#scroll:hover {
+    background-color:#e74c3c;
+    opacity:1;filter:"alpha(opacity=100)";
+    -ms-filter:"alpha(opacity=100)";
 }
