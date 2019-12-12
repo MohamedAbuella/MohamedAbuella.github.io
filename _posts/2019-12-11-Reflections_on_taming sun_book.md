@@ -20,4 +20,5 @@ Technological innovations are needed to reduce the cost of all involved componen
 Systematic innovations to tackle the operational challenges that are introduced by a significant integration of solar energy resources into the power grid, and come up with innovations to maintain (or even improve) the reliability and stability of the grid.
 Typically, all of these innovations should continuously help the solar energy and increase its value further in the future.</p>
 <p>Available on <a href="https://www.amazon.com/Taming-Sun-Innovations-Harness-Energy/dp/0262537079/ref=sr_1_1?keywords=Taming+the+Sun%3A+Innovations+to+Harness+Solar+Energy+and+Power+the&qid=1576126598&s=books&sr=1-1" target="_blank" style="color:blue">Amazon </a> </p>
-<img src="/icons/taming sun cover.jpg" width="220" height="277"  ALIGN=”right” />
+<!-- <img src="/icons/taming sun cover.jpg" width="220" height="277"  ALIGN=”right” />  -->
+<img src="/icons/Energy_Civilization.jpg" width="220" height="277"  ALIGN=”right” />
