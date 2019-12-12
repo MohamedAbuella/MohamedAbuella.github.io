@@ -10,7 +10,7 @@ tags:     [Blog]
 <!-- <img src="/images/taming sun cover.jpg" alt="banner image"> -->
 <!-- <p>This blog entry is available on <a href="https://medium.com/@mhdabuella/reading-a-big-picture-book-after-a-while-of-focusing-on-elaborate-technical-stuff-62b6735fe4f?source=friends_link&sk=40326341cb9aa9e7f6bcd197348cec9b
 " target="_blank" style="color:blue">Medium </a> </p> -->
-<p>The book is: <cite>Taming the Sun: Innovations to Harness Solar Energy and Power the Planet</cite> by Varun Sivaram. Published by the MIT Press (February 26, 2019).</p>
+<p>The book is: <cite>Taming the Sun: Innovations to Harness Solar Energy and Power the Planet</cite> by Varun Sivaram. Published by the MIT Press (March 2, 2018).</p>
 <h3>Reflection:</h3>
 For more deployment of solar energy we need three kinds of innovation:
 <br> 1) Financial, 2) Technological, 3) Systemic innovations.
