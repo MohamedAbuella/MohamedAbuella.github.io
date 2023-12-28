@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <script type="text/javascript" src="https://worrydream.com/tangle/dist/tangle.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+
+    .tangle {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="example" class="tangle">
+    <span data-var="x" class="TKAdjustableNumber" data-min="-10" data-max="10">5</span>
+    <span data-var="result" class="TKAdjustableNumber" data-min="-100" data-max="100">0</span>
+    
+    <script type="text/javascript">
+      var element = document.getElementById("example");
+      var tangle = new Tangle(element, {
+        initialize: function () {
+          this.x = 5;
+          this.result = this.x * this.x;
+        },
+        update: function () {
+          this.result = this.x * this.x;
+        }
+      });
+    </script>
+  </div>
+
+</body>
+</html>
