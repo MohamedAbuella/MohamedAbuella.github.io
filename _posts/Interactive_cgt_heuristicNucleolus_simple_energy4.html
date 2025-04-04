@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive CGT Energy System Profit Allocation (4 Players)</title>
+    <style>
+        /* (Keep existing styles) */
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 1150px; /* Wider for inputs */
+            margin: auto;
+        }
+        h1, h2, h3 {
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px; /* Adjust padding for inputs */
+            text-align: right; /* Align numbers right */
+            vertical-align: middle; /* Align vertically */
+        }
+        th, td:nth-child(1), td:nth-child(2) {
+             text-align: left; /* Align text left for ID, Type */
+        }
+        th {
+            background-color: #e9e9e9;
+        }
+        td input[type="number"] {
+            width: 90%; /* Adjust width as needed */
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            text-align: right; /* Align input text right */
+            box-sizing: border-box; /* Include padding/border in width */
+            font-size: 0.95em;
+        }
+        /* Style calculated fields differently? */
+        .calculated-value {
+            /* background-color: #f8f8f8; */ /* Optional: subtle background */
+            font-weight: normal;
+        }
+        .profit-value {
+             font-weight: bold;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px 5px 15px 0; /* Added bottom margin */
+            font-size: 1em;
+        }
+         button.recalculate { /* Style the main recalculate button */
+            background-color: #28a745; /* Green */
+         }
+         button.recalculate:hover {
+             background-color: #218838;
+         }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+            background-color: #eef;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #cce;
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .result-section {
+            margin-bottom: 20px;
+             padding-bottom: 15px;
+             border-bottom: 1px dashed #ccc;
+        }
+         .result-section:last-child {
+             border-bottom: none;
+             padding-bottom: 0;
+         }
+        .result-section h3 {
+            margin-top: 0;
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+         /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted black;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 280px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -140px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9em;
+            line-height: 1.3;
+        }
+
+         .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .config-section {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .config-section label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .config-section input[type="number"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            width: 100px;
+        }
+         #update-prompt {
+            color: #dc3545; /* Bootstrap danger color */
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8d7da; /* Light red */
+            border: 1px solid #f5c6cb; /* Red border */
+            border-radius: 4px;
+            display: none; /* Hidden by default */
+         }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interactive Cooperative Game Theory Tool for Energy System (Profit Allocation)</h1>
+
+        <div class="config-section">
+             <label for="marketPrice">Market Price (£/MWh):</label>
+             <input type="number" id="marketPrice" value="50.00" step="0.01" onchange="handleParamChange()"> <!-- Also trigger param change -->
+             <p style="font-size:0.9em; color: #555;">Adjust the market price or any generator parameter in the table below. Changes require recalculation.</p>
+             <button onclick="recalculateAllAnalysis()" class="recalculate">Recalculate All Analysis</button>
+             <div id="update-prompt">Parameters changed. Click "Recalculate All Analysis" to update results.</div>
+        </div>
+
+
+        <h2>Generator Data & Individual Performance (4 Players)</h2>
+        <p style="font-size:0.9em; color: #555;">You can edit the values in the input fields (Max Gen, Cost, Emissions, CO2 Penalty, CF).</p>
+        <table id="player-data">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Max Gen (MWh)</th> <!-- Renamed for clarity from source table -->
+                    <th>Cost (£/MWh)</th> <!-- Renamed for clarity from source table -->
+                    <th>Emissions (t/MWh)</th> <!-- Renamed for clarity from source table -->
+                    <th>CO2 Penalty (£/t)</th> <!-- Renamed for clarity from source table -->
+                    <th>CF</th>
+                    <!-- Calculated columns -->
+                    <th>Actual Gen (MWh)</th>
+                    <th>Total Cost (£)</th>
+                    <th>Total Revenue (£)</th>
+                    <th>Individual Profit (£) [v({i})]</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- This section is intentionally left empty. -->
+                <!-- JavaScript's populateTable() function will fill it on load. -->
+            </tbody>
+        </table>
+
+        <h2>Cooperative Game Analysis (Profit Allocation)</h2>
+        <p>Players cooperate to generate energy and pool profits. The value of a coalition `v(S)` is its total profit based on the current parameters.</p>
+
+        <button onclick="showCharacteristicFunction()">1. Calculate Characteristic Function v(S)</button>
+        <button onclick="calculateAndShowShapley()">2. Calculate Shapley Value</button>
+        <button onclick="analyzeCore()">3. Analyze Core</button>
+        <button onclick="calculateAndShowNucleolus()">4. Calculate Nucleolus</button>
+        <button onclick="calculateAndShowNashBargaining()">5. Calculate Nash Bargaining</button>
+        <button onclick="runAll()">Run All Calculations</button>
+
+        <div id="results">
+            <p>Set parameters and Market Price, then click "Recalculate All Analysis" or individual calculation buttons.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- Player Data (Initial Values from provided table) ---
+        const playersData = [
+            // id  Type       Max Gen  Cost (£/MWh) Emissions CO2 Penalty CF
+            { id: 1, type: 'Nuclear', maxGen: 25000, costPerMwh: 10.57838661, emissions: 0,      co2Penalty: 162.62, cf: 0.9 },
+            { id: 2, type: 'Wind',    maxGen: 60000, costPerMwh: 7.054794521,  emissions: 0,      co2Penalty: 162.62, cf: 0.5 },
+            { id: 3, type: 'PV',      maxGen: 60000, costPerMwh: 4.718417047,  emissions: 0,      co2Penalty: 162.62, cf: 0.15 },
+            { id: 4, type: 'Gas-CCS', maxGen: 10000, costPerMwh: 5.16180266,   emissions: 0.032,  co2Penalty: 162.62, cf: 0.92 }
+        ];
+        const n = playersData.length; // Should be 4
+
+        // --- Global Variables ---
+        let players = []; // Holds *calculated* performance { ...playerData, actualGen, totalCost, etc. }
+        let marketPrice = 50.00;
+        let characteristicFunction = null; // Stores v(S) - invalidated on param change
+        let resultsDiv = document.getElementById('results');
+        let updatePromptDiv = document.getElementById('update-prompt');
+        let dataChanged = false; // Flag to track if parameters changed
+
+        // --- Helper Functions ---
+        function updateMarketPriceFromInput() {
+             const priceInput = document.getElementById('marketPrice');
+             marketPrice = parseFloat(priceInput.value) || 0;
+        }
+
+        function calculatePerformance(playerInputData) {
+            const actualGen = (playerInputData.maxGen || 0) * (playerInputData.cf || 0);
+            const genCost = actualGen * (playerInputData.costPerMwh || 0);
+            const emissionCost = actualGen * (playerInputData.emissions || 0) * (playerInputData.co2Penalty || 0);
+            const totalCost = genCost + emissionCost;
+            const totalRevenue = actualGen * marketPrice; // Use global marketPrice
+            const profit = totalRevenue - totalCost;
+            return { ...playerInputData, actualGen, totalCost, totalRevenue, profit };
+        }
+
+        function calculateAllPlayersPerformance() {
+            console.log("Recalculating performance for all players...");
+            players = playersData.map(pData => calculatePerformance(pData));
+            console.log("Global 'players' array updated:", players);
+        }
+
+        function formatCurrency(value) {
+            if (typeof value !== 'number' || isNaN(value)) {
+                return "N/A";
+            }
+            const sign = value < 0 ? '-' : '';
+            const absValue = Math.abs(value);
+            const formatted = absValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return value < 0 ? `<span style="color:red;">${sign}£${formatted}</span>` : `£${formatted}`;
+        }
+
+        function formatNumber(value, digits = 2) {
+             if (typeof value !== 'number' || isNaN(value)) {
+                return "N/A";
+            }
+            return value.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        }
+
+        function formatInputNumber(value, step) {
+             if (typeof value !== 'number' || isNaN(value)) return '';
+             const stepString = String(step);
+             const decimalPlaces = stepString.includes('.') ? stepString.split('.')[1].length : 0;
+             return value.toFixed(decimalPlaces);
+        }
+
+        function factorial(num) {
+            if (num < 0) return -1;
+            if (num === 0) return 1;
+            let result = 1;
+            for (let i = 2; i <= num; i++) {
+                result *= i;
+            }
+            return result;
+        }
+        function getCoalitions() {
+            const subsets = [];
+            const numSubsets = 1 << n; // 2^n
+
+            for (let i = 0; i < numSubsets; i++) {
+                const subset = [];
+                for (let j = 0; j < n; j++) {
+                    if ((i >> j) & 1) {
+                        subset.push(j);
+                    }
+                }
+                subsets.push(subset);
+            }
+            return subsets;
+        }
+        function coalitionToKey(coalition) {
+            return coalition.slice().sort((a, b) => a - b).join(',') || 'empty';
+        }
+        function formatCoalition(coalitionIndices) {
+             if (!coalitionIndices || coalitionIndices.length === 0) return '{}';
+             if (players.length !== n) {
+                 console.warn("Attempting to format coalition before 'players' array is fully initialized.");
+                 calculateAllPlayersPerformance();
+                 if (players.length !==n) return '{error: players not ready}';
+             }
+             const playerIDs = coalitionIndices.map(index => players[index]?.id || '?');
+             return `{${playerIDs.join(', ')}}`;
+        }
+
+
+        // --- Core Calculation Functions ---
+
+        function calculateV() {
+            console.log(`Calculating Characteristic Function v(S) for n=${n} players based on Profit...`);
+            if (players.length !== n || players.some(p => p.profit === undefined)) {
+                 console.warn("Player performance data missing, recalculating...");
+                 calculateAllPlayersPerformance();
+             }
+
+            characteristicFunction = {};
+            const coalitions = getCoalitions();
+
+            coalitions.forEach(coalition => {
+                let totalProfit = 0;
+                coalition.forEach(playerIndex => {
+                     totalProfit += players[playerIndex]?.profit || 0;
+                });
+                const key = coalitionToKey(coalition);
+                characteristicFunction[key] = totalProfit;
+            });
+             console.log(`Characteristic Function calculated for ${coalitions.length} coalitions.`);
+             dataChanged = false;
+             updatePromptDiv.style.display = 'none';
+            return characteristicFunction;
+        }
+
+        function calculateShapleyValues() {
+            if (!characteristicFunction) {
+                console.log("v(S) needed for Shapley, calculating...");
+                calculateV();
+                if (!characteristicFunction) {
+                     console.error("Failed to calculate v(S), cannot compute Shapley.");
+                     return null;
+                }
+            }
+             console.log(`Calculating Shapley Values for n=${n} players...`);
+             const shapleyValues = Array(n).fill(0);
+             const coalitions = getCoalitions();
+             const nFactorial = factorial(n);
+
+             if (nFactorial <= 0) {
+                 console.error("Cannot calculate Shapley Value: Factorial calculation issue.");
+                 return null;
+             }
+
+             for (let i = 0; i < n; i++) {
+                 for (const coalitionS of coalitions) {
+                     if (coalitionS.includes(i)) {
+                         const sSize = coalitionS.length;
+                         const coalitionS_minus_i = coalitionS.filter(p => p !== i);
+                         const keyS = coalitionToKey(coalitionS);
+                         const keyS_minus_i = coalitionToKey(coalitionS_minus_i);
+                         const vS = characteristicFunction[keyS] ?? 0;
+                         const vS_minus_i = characteristicFunction[keyS_minus_i] ?? 0;
+                         const marginalContribution = vS - vS_minus_i;
+                         const weight = (factorial(sSize - 1) * factorial(n - sSize)) / nFactorial;
+                         shapleyValues[i] += weight * marginalContribution;
+                     }
+                 }
+             }
+              console.log(`Shapley Values calculated: [${shapleyValues.map(v => v.toFixed(2)).join(', ')}]`);
+             return shapleyValues;
+        }
+
+        function calculateNashBargaining() {
+            if (!characteristicFunction) {
+                 console.log("v(S) needed for Nash Bargaining, calculating...");
+                 calculateV();
+                 if (!characteristicFunction) {
+                      console.error("Failed to calculate v(S), cannot compute Nash Bargaining.");
+                      return null;
+                 }
+             }
+             console.log(`Calculating Nash Bargaining Solution for n=${n} players...`);
+
+            const v = characteristicFunction;
+            const grandCoalitionIndices = [...Array(n).keys()];
+            const vNKey = coalitionToKey(grandCoalitionIndices);
+            const vN = v[vNKey] ?? 0;
+
+            const disagreementPoint = players.map((p, i) => v[coalitionToKey([i])] ?? 0);
+            const sumDisagreement = disagreementPoint.reduce((sum, d) => sum + d, 0);
+
+            const totalSurplus = vN - sumDisagreement;
+            console.log(`v(N) = ${formatCurrency(vN)}, Sum d_i = ${formatCurrency(sumDisagreement)}, Total Surplus = ${formatCurrency(totalSurplus)}`);
+
+            if (totalSurplus < -1e-9) {
+                console.warn("Warning: Total surplus from cooperation is negative or zero. NBS reverts to disagreement point.");
+                return [...disagreementPoint];
+            }
+            if (n <= 0) {
+                 console.error("Cannot calculate Nash Bargaining: Number of players n must be positive.");
+                 return null;
+            }
+
+            const nbsAllocation = disagreementPoint.map(d_i => d_i + totalSurplus / n);
+
+            console.log(`NBS Allocation calculated: [${nbsAllocation.map(v => v.toFixed(2)).join(', ')}]`);
+            return nbsAllocation;
+        }
+
+        function checkCoreConditions(allocation) {
+             if (!characteristicFunction) {
+                 console.log("v(S) needed for Core Check, calculating...");
+                 calculateV();
+                 if (!characteristicFunction) {
+                      console.error("Failed to calculate v(S), cannot check Core conditions.");
+                      return { satisfied: false, messages: ["Cannot check Core: Characteristic function v(S) failed to calculate."] };
+                 }
+             }
+              if (!allocation || allocation.length !== n) return { satisfied: false, messages: ["Invalid allocation provided."] };
+
+            const v = characteristicFunction;
+            const coalitions = getCoalitions();
+            const grandCoalitionKey = coalitionToKey([...Array(n).keys()]);
+            const vN = v[grandCoalitionKey] ?? 0;
+            const totalAllocation = allocation.reduce((sum, x) => sum + (x || 0), 0);
+
+            let messages = [];
+            let conditionsMet = true;
+            const tolerance = 1e-6;
+
+            // 1. Efficiency Check: sum(x_i) = v(N)
+            if (Math.abs(totalAllocation - vN) > tolerance) {
+                 messages.push(`Efficiency Condition FAILED: Sum of allocation (${formatCurrency(totalAllocation)}) != v(N) (${formatCurrency(vN)})`);
+                 conditionsMet = false;
+            } else {
+                 messages.push(`Efficiency Condition MET: Sum of allocation (${formatCurrency(totalAllocation)}) ≈ v(N) (${formatCurrency(vN)})`);
+            }
+
+             // 2. Individual & Group Rationality: sum(x_i for i in S) >= v(S) for all S
+             coalitions.forEach(coalitionS => {
+                 if (coalitionS.length > 0 && coalitionS.length < n) {
+                     const keyS = coalitionToKey(coalitionS);
+                     const vS = v[keyS] ?? 0;
+                     const sumAllocationS = coalitionS.reduce((sum, i) => sum + (allocation[i] || 0), 0);
+
+                     if (sumAllocationS < vS - tolerance) {
+                         messages.push(`Rationality FAILED for coalition ${formatCoalition(coalitionS)}: Sum Alloc(S) = ${formatCurrency(sumAllocationS)} < v(S) = ${formatCurrency(vS)} (Coalition has incentive to leave)`);
+                         conditionsMet = false;
+                     }
+                 }
+                 else if (coalitionS.length === 1) {
+                    const i = coalitionS[0];
+                    const keyS = coalitionToKey(coalitionS);
+                    const vS = v[keyS] ?? 0;
+                    const sumAllocationS = allocation[i] || 0;
+                     if (sumAllocationS < vS - tolerance) {
+                        messages.push(`Individual Rationality FAILED for Player ${players[i]?.id}: Alloc = ${formatCurrency(sumAllocationS)} < v({${players[i]?.id}}) = ${formatCurrency(vS)}`);
+                         conditionsMet = false;
+                    }
+                 }
+             });
+
+             if (conditionsMet && messages.length <= 1) {
+                 messages.push(`All Individual and Group Rationality conditions MET.`);
+             } else if (conditionsMet) {
+                  let rationalityFailed = messages.some(m => m.includes("FAILED for coalition") || m.includes("Individual Rationality FAILED"));
+                  if (!rationalityFailed) {
+                      messages.push(`All Individual and Group Rationality conditions MET.`);
+                  }
+             } else if (!conditionsMet && messages.length > 1) {
+                 let rationalityFailed = messages.some(m => m.includes("FAILED for coalition") || m.includes("Individual Rationality FAILED"));
+                 if (rationalityFailed) {
+                     messages.push(`At least one Rationality condition FAILED.`);
+                 }
+             }
+
+             return { satisfied: conditionsMet, messages: messages };
+        }
+
+        function getCoreDescription() {
+             if (!characteristicFunction) {
+                 console.log("v(S) needed for Core Description, calculating...");
+                 calculateV();
+                 if (!characteristicFunction) {
+                      console.error("Failed to calculate v(S), cannot describe Core.");
+                      return '<div class="result-section"><h3>Core Analysis</h3><p style="color:red;">Error calculating characteristic function, cannot describe Core.</p></div>';
+                 }
+             }
+             const v = characteristicFunction;
+            const grandCoalitionIndices = [...Array(n).keys()];
+            const vNKey = coalitionToKey(grandCoalitionIndices);
+            const vN = v[vNKey] ?? 0;
+
+            let description = `<div class="result-section"><h3><span class="tooltip">Core Analysis<span class="tooltiptext">The set of profit allocations that are 'stable'. No player or subgroup of players (coalition) has an incentive to break away from the grand coalition N, because they receive at least as much profit (x(S)) within N as they could get on their own (v(S)). The allocation must also be efficient (sum(xi)=v(N)).</span></span> (n=${n})</h3>`;
+
+            description += `<p>The Core is the set of profit allocations (x1, ..., x${n}) such that:</p><ul>`;
+            description += `<li>Sum(xi) = v(N) = ${formatCurrency(vN)} (Efficiency)</li>`;
+            description += `<li>x<sub>i</sub> ≥ v({i}) for all players i (Individual Rationality)</li>`;
+            description += `<li>Sum(x<sub>i</sub> for i in S) ≥ v(S) for all other coalitions S ⊂ N, S ≠ ∅ (Group Rationality)</li></ul>`;
+
+            description += `<p>Explicit Individual Rationality constraints:</p><ul>`;
+            players.forEach((p, i) => {
+                const v_i = v[coalitionToKey([i])] ?? 0;
+                description += `<li>x${p.id} ≥ v({${p.id}}) = ${formatCurrency(v_i)}</li>`;
+            });
+             description += `</ul>`;
+
+
+            if (n === 3) {
+                 const v1 = v['0'] ?? 0; const v2 = v['1'] ?? 0; const v3 = v['2'] ?? 0;
+                const v12 = v['0,1'] ?? 0; const v13 = v['0,2'] ?? 0; const v23 = v['1,2'] ?? 0;
+                const v123 = vN;
+
+                description += `<p>For n=3, the explicit group rationality conditions are:</p><ul>`;
+                description += `<li>x1 + x2 ≥ v({1,2}) = ${formatCurrency(v12)}</li>`;
+                description += `<li>x1 + x3 ≥ v({1,3}) = ${formatCurrency(v13)}</li>`;
+                description += `<li>x2 + x3 ≥ v({2,3}) = ${formatCurrency(v23)}</li></ul>`;
+                 description += getBondarevaShapleyConditionsDescription(v, n);
+
+            } else if (n === 4) {
+                description += `<p>For n=4, there are many group rationality constraints (for coalitions of size 2 and 3). Examples:</p><ul>`;
+                 const p1 = players[0]?.id || 1; const p2 = players[1]?.id || 2; const p3 = players[2]?.id || 3; const p4 = players[3]?.id || 4;
+                 description += `<li>x${p1} + x${p2} ≥ v({${p1},${p2}}) = ${formatCurrency(v[coalitionToKey([0,1])] ?? 0)}</li>`;
+                 description += `<li>x${p3} + x${p4} ≥ v({${p3},${p4}}) = ${formatCurrency(v[coalitionToKey([2,3])] ?? 0)}</li>`;
+                 description += `<li>x${p1} + x${p2} + x${p3} ≥ v({${p1},${p2},${p3}}) = ${formatCurrency(v[coalitionToKey([0,1,2])] ?? 0)}</li>`;
+                 description += `<li>... (and so on for all other pairs and triplets)</li></ul>`;
+                 description += getBondarevaShapleyConditionsDescription(v, n);
+
+            } else {
+                 description += "<p>Checking for non-emptiness (balancedness) and describing the geometric shape of the Core is complex for n > 4 and not implemented here beyond the general definition and individual constraints.</p>";
+                 description += getBondarevaShapleyConditionsDescription(v, n);
+            }
+             description += "<p>You can check if specific allocation methods (like Shapley, Nucleolus, Nash) result in an allocation that lies *within* the Core using the 'Core Check' provided with their results.</p>";
+            description += `</div>`;
+            return description;
+        }
+
+        function getBondarevaShapleyConditionsDescription(v, numPlayers) {
+             const isBalanced = checkBalancedness(v, numPlayers);
+             if (isBalanced === null) {
+                 return "<p>Could not determine Core non-emptiness (balancedness check not fully implemented or failed).</p>"
+             } else if (isBalanced) {
+                 return "<p style='color: green;'><b>The game appears to be balanced. The Core is non-empty.</b> (Based on Bondareva-Shapley condition check).</p>";
+             } else {
+                 return "<p style='color: red;'><b>The game appears to be NOT balanced. The Core is EMPTY.</b> (Based on Bondareva-Shapley condition check).</p>";
+             }
+        }
+
+        function checkBalancedness(v, numPlayers) {
+             const grandCoalitionIndices = [...Array(numPlayers).keys()];
+             const vNKey = coalitionToKey(grandCoalitionIndices);
+             const vN = v[vNKey] ?? 0;
+             const tolerance = 1e-6;
+
+             let sumIndividual = 0;
+             for (let i = 0; i < numPlayers; i++) {
+                 sumIndividual += (v[coalitionToKey([i])] ?? 0);
+             }
+             if (vN < sumIndividual - tolerance) {
+                 console.log("Balancedness Check Fail: v(N) < sum v({i})");
+                 return false;
+             }
+
+            if (numPlayers === 3) {
+                 const v1 = v['0'] ?? 0; const v2 = v['1'] ?? 0; const v3 = v['2'] ?? 0;
+                 const v12 = v['0,1'] ?? 0; const v13 = v['0,2'] ?? 0; const v23 = v['1,2'] ?? 0;
+                 if (vN < v12 + v3 - tolerance || vN < v13 + v2 - tolerance || vN < v23 + v1 - tolerance) { console.log("Balancedness Check Fail: n=3 partition condition"); return false;}
+                 if (2 * vN < v12 + v13 + v23 - tolerance) { console.log("Balancedness Check Fail: n=3 sum of pairs condition"); return false;}
+            }
+
+             if (numPlayers === 4) {
+                  const v1 = v['0'] ?? 0; const v2 = v['1'] ?? 0; const v3 = v['2'] ?? 0; const v4 = v['3'] ?? 0;
+                  const v12 = v['0,1'] ?? 0; const v13 = v['0,2'] ?? 0; const v14 = v['0,3'] ?? 0;
+                  const v23 = v['1,2'] ?? 0; const v24 = v['1,3'] ?? 0; const v34 = v['2,3'] ?? 0;
+                  const v123 = v['0,1,2'] ?? 0; const v124 = v['0,1,3'] ?? 0; const v134 = v['0,2,3'] ?? 0; const v234 = v['1,2,3'] ?? 0;
+
+                  if (vN < v123 + v4 - tolerance || vN < v124 + v3 - tolerance || vN < v134 + v2 - tolerance || vN < v234 + v1 - tolerance) { console.log("Balancedness Check Fail: n=4 {3},{1} partition"); return false; }
+                  if (vN < v12 + v34 - tolerance || vN < v13 + v24 - tolerance || vN < v14 + v23 - tolerance) { console.log("Balancedness Check Fail: n=4 {2},{2} partition"); return false; }
+            }
+
+             console.log("Balancedness Check: No simple necessary conditions failed.");
+             return true; // Tentative true
+        }
+
+
+        function calculateNucleolusForN3() {
+             console.log("Calculating Nucleolus (n=3 formula) based on profit v(S)...");
+             const v = characteristicFunction;
+             const v1 = v['0'] || 0; const v2 = v['1'] || 0; const v3 = v['2'] || 0;
+             const v12 = v['0,1'] || 0; const v13 = v['0,2'] || 0; const v23 = v['1,2'] || 0;
+             const v123 = v['0,1,2'] || 0;
+
+             let candidates = [];
+             const tolerance = 1e-9;
+             const sumTolerance = 1e-5;
+             const vN = v123;
+
+             try {
+                 let x1_c1 = (v123 + 2*v1 - v2 - v3) / 3;
+                 let x2_c1 = x1_c1 + v2 - v1;
+                 let x3_c1 = x1_c1 + v3 - v1;
+                 if (isValidAllocation([x1_c1, x2_c1, x3_c1], vN, sumTolerance)) candidates.push([x1_c1, x2_c1, x3_c1]);
+
+                 let x1_c2a = (vN + v1 - v23) / 2;
+                 let x2_c2a = (vN + v2 - v13) / 2;
+                 let x3_c2a = (vN + v3 - v12) / 2;
+                  if (isValidAllocation([x1_c2a, x2_c2a, x3_c2a], vN, sumTolerance)) candidates.push([x1_c2a, x2_c2a, x3_c2a]);
+
+                 let x2_c3 = (vN + v23 + v12 - 2 * v13) / 3;
+                 let x3_c3 = x2_c3 + v13 - v12;
+                 let x1_c3 = x2_c3 - v23 + v13;
+                 if (isValidAllocation([x1_c3, x2_c3, x3_c3], vN, sumTolerance)) candidates.push([x1_c3, x2_c3, x3_c3]);
+
+             } catch(e) {
+                  console.error("Error calculating nucleolus candidates for n=3:", e);
+             }
+
+             const shapleyCand = calculateShapleyValues();
+             if (shapleyCand && isValidAllocation(shapleyCand, vN, sumTolerance)) {
+                 candidates.push(shapleyCand);
+             }
+             const nbsCand = calculateNashBargaining();
+             if (nbsCand && isValidAllocation(nbsCand, vN, sumTolerance)) {
+                  candidates.push(nbsCand);
+             }
+
+             const uniqueCandidates = [];
+             const seenKeys = new Set();
+             candidates.forEach(cand => {
+                 let individuallyRational = true;
+                 for(let i=0; i<n; i++) {
+                     if (cand[i] < (v[coalitionToKey([i])] ?? 0) - tolerance) {
+                         individuallyRational = false;
+                         break;
+                     }
+                 }
+
+                 if (individuallyRational) {
+                    const key = cand.map(x => x.toFixed(8)).join(',');
+                    if (!seenKeys.has(key)) {
+                        uniqueCandidates.push(cand);
+                        seenKeys.add(key);
+                    }
+                 }
+             });
+             console.log("Unique, valid candidates for Nucleolus (n=3):", uniqueCandidates.length);
+
+
+             let bestNucleolus = null;
+             let minLexExcessVector = null;
+
+             if (uniqueCandidates.length === 0) {
+                 console.warn("No valid candidates found for N=3 Nucleolus satisfying imputation conditions.");
+                 return null;
+             }
+
+             uniqueCandidates.forEach(cand => {
+                  const excessVector = calculateExcessVector(cand);
+                  if (excessVector) {
+                      if (bestNucleolus === null || isLexicographicallySmaller(excessVector, minLexExcessVector)) {
+                          minLexExcessVector = excessVector;
+                          bestNucleolus = cand;
+                      }
+                  }
+             });
+
+             if (!bestNucleolus) {
+                  console.error("Could not determine Nucleolus from candidates for n=3.");
+                  return null;
+             }
+
+             console.log("Final Nucleolus (n=3):", bestNucleolus.map(x=>x.toFixed(2)));
+             return bestNucleolus;
+        }
+
+
+        function calculateNucleolus() {
+             if (!characteristicFunction) {
+                  console.log("v(S) needed for Nucleolus, calculating...");
+                  calculateV();
+                  if (!characteristicFunction) {
+                       console.error("Failed to calculate v(S), cannot compute Nucleolus.");
+                       return { allocation: null, message: "Error: Failed to calculate v(S)." };
+                  }
+             }
+             const grandCoalitionKey = coalitionToKey([...Array(n).keys()]);
+             const vN = characteristicFunction[grandCoalitionKey] ?? 0;
+
+             if (n === 3) {
+                  const nucleolusN3 = calculateNucleolusForN3();
+                  if (nucleolusN3) {
+                      return { allocation: nucleolusN3, message: "Calculated using specific formulas for n=3." };
+                  } else {
+                      return { allocation: null, message: "Could not determine Nucleolus for n=3 (potentially empty core or calculation issue)." };
+                  }
+             } else if (n === 4) {
+                  console.log("Calculating Nucleolus Heuristic (n=4) by comparing Shapley and NBS...");
+                   const shapley = calculateShapleyValues();
+                   const nbs = calculateNashBargaining();
+
+                   const isShapleyValid = shapley && isValidAllocation(shapley, vN);
+                   const isNBSValid = nbs && isValidAllocation(nbs, vN);
+
+                   let shapleyExcess = null;
+                   let nbsExcess = null;
+                   let bestAlloc = null;
+                   let message = "Nucleolus (n=4 Heuristic): ";
+
+                   if (isShapleyValid) shapleyExcess = calculateExcessVector(shapley);
+                   if (isNBSValid) nbsExcess = calculateExcessVector(nbs);
+
+                   if (isShapleyValid && isNBSValid && shapleyExcess && nbsExcess) {
+                       if (isLexicographicallySmaller(shapleyExcess, nbsExcess)) {
+                           bestAlloc = shapley;
+                           message += "Selected Shapley Value (lexicographically smaller excess vector).";
+                       } else if (isLexicographicallySmaller(nbsExcess, shapleyExcess)) {
+                           bestAlloc = nbs;
+                           message += "Selected Nash Bargaining Solution (lexicographically smaller excess vector).";
+                       } else {
+                           bestAlloc = shapley;
+                           message += "Shapley and NBS have identical excess vectors. Selected Shapley.";
+                       }
+                   } else if (isShapleyValid && shapleyExcess) {
+                       bestAlloc = shapley;
+                       message += "Only Shapley Value is a valid candidate. Selected Shapley.";
+                   } else if (isNBSValid && nbsExcess) {
+                       bestAlloc = nbs;
+                       message += "Only Nash Bargaining Solution is a valid candidate. Selected NBS.";
+                   } else {
+                       message = "Could not determine Nucleolus for n=4: Neither Shapley nor NBS provided a valid result for comparison.";
+                       console.warn(message);
+                       return { allocation: null, message: message };
+                   }
+
+                   console.log(`Nucleolus Heuristic (n=4) selected: ${bestAlloc ? '[' + bestAlloc.map(x => x.toFixed(2)).join(', ') + ']' : 'None'}`);
+                   return { allocation: bestAlloc, message: message + " Note: This compares Shapley/NBS excesses, not a full LP calculation." };
+
+             } else {
+                  console.warn(`Nucleolus calculation not implemented for n=${n}.`);
+                  return { allocation: null, message: `Nucleolus calculation is only implemented for n=3 (exact) and n=4 (heuristic). Current n=${n}.` };
+             }
+        }
+
+        function calculateExcessVector(allocation) {
+            if (!characteristicFunction) {
+                console.error("Cannot calculate excess vector: Characteristic function missing.");
+                return null;
+            }
+             if (!allocation || allocation.length !== n) {
+                 console.error("Cannot calculate excess vector: Invalid allocation provided.");
+                 return null;
+             }
+
+            let excesses = [];
+            const coalitions = getCoalitions();
+
+            coalitions.forEach(coalitionS => {
+                if (coalitionS.length > 0 && coalitionS.length < n) {
+                    const keyS = coalitionToKey(coalitionS);
+                    const vS = characteristicFunction[keyS] ?? 0;
+                    const sumAllocationS = coalitionS.reduce((sum, i) => sum + (allocation[i] || 0), 0);
+                    const excess = vS - sumAllocationS;
+                    excesses.push(excess);
+                }
+            });
+
+            excesses.sort((a, b) => b - a);
+
+            return excesses;
+        }
+
+
+        function isValidAllocation(alloc, expectedSum = null, tolerance = 1e-5) {
+             if (!alloc || !Array.isArray(alloc) || alloc.length !== n) {
+                 return false;
+             }
+             if (alloc.some(x => typeof x !== 'number' || isNaN(x))) {
+                 return false;
+             }
+
+             if (expectedSum !== null && typeof expectedSum === 'number' && !isNaN(expectedSum)) {
+                 const sum = alloc.reduce((a, b) => a + b, 0);
+                 if (Math.abs(sum - expectedSum) > tolerance) {
+                      console.warn(`isValidAllocation: Sum condition failed. Sum: ${sum.toFixed(4)}, Expected: ${expectedSum.toFixed(4)}, Diff: ${Math.abs(sum-expectedSum).toExponential(2)}, Tolerance: ${tolerance.toExponential(2)}`, alloc);
+                      return false;
+                 }
+             }
+             return true;
+        }
+
+        function isLexicographicallySmaller(vecA, vecB) {
+             if (!vecA || !vecB) return false;
+             const len = Math.min(vecA.length, vecB.length);
+             const tolerance = 1e-9;
+             for (let i = 0; i < len; i++) {
+                 if (vecA[i] < vecB[i] - tolerance) return true;
+                 if (vecA[i] > vecB[i] + tolerance) return false;
+             }
+             return vecA.length < vecB.length;
+        }
+
+        // --- UI Functions ---
+
+        function populateTable() {
+            const tbody = document.getElementById('player-data').querySelector('tbody');
+            tbody.innerHTML = ''; // Clear existing rows (important!)
+            // Ensure initial performance is calculated before populating
+            calculateAllPlayersPerformance();
+
+            playersData.forEach((pData, index) => {
+                const pCalc = players[index]; // Get the calculated performance
+                if (!pCalc) { // Safety check in case calculation failed
+                    console.error("Missing calculated data for player index:", index);
+                    return; // Skip this row if data is bad
+                }
+
+                const steps = { maxGen: 1, costPerMwh: 0.01, emissions: 0.001, co2Penalty: 0.01, cf: 0.01 };
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${pData.id}</td>
+                    <td>${pData.type}</td>
+                    <td><input type="number" value="${pData.maxGen}" step="${steps.maxGen}" data-player-index="${index}" data-param="maxGen" onchange="handleParamChange(event)"></td>
+                    <td><input type="number" value="${pData.costPerMwh}" step="${steps.costPerMwh}" data-player-index="${index}" data-param="costPerMwh" onchange="handleParamChange(event)"></td>
+                    <td><input type="number" value="${pData.emissions}" step="${steps.emissions}" min="0" data-player-index="${index}" data-param="emissions" onchange="handleParamChange(event)"></td>
+                    <td><input type="number" value="${pData.co2Penalty}" step="${steps.co2Penalty}" min="0" data-player-index="${index}" data-param="co2Penalty" onchange="handleParamChange(event)"></td>
+                    <td><input type="number" value="${pData.cf}" step="${steps.cf}" min="0" max="1" data-player-index="${index}" data-param="cf" onchange="handleParamChange(event)"></td>
+                    <!-- Calculated values need IDs for updating -->
+                    <td id="actualGen-${pData.id}" class="calculated-value">${formatNumber(pCalc.actualGen, 0)}</td>
+                    <td id="totalCost-${pData.id}" class="calculated-value">${formatCurrency(pCalc.totalCost)}</td>
+                    <td id="totalRevenue-${pData.id}" class="calculated-value">${formatCurrency(pCalc.totalRevenue)}</td>
+                    <td id="profit-${pData.id}" class="profit-value">${formatCurrency(pCalc.profit)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+             console.log("Player data table populated.");
+        }
+
+        function handleParamChange(event = null) {
+             dataChanged = true;
+             characteristicFunction = null;
+             resultsDiv.innerHTML = '<p>Parameters changed. Recalculate analysis.</p>';
+             updatePromptDiv.style.display = 'block';
+
+             if (event && event.target.id === 'marketPrice') {
+                 updateMarketPriceFromInput();
+                 calculateAllPlayersPerformance();
+                 updateTableCalculatedCells();
+                 console.log("Market price changed. Recalculated all player performance.");
+
+             } else if (event && event.target.dataset.playerIndex !== undefined) {
+                 const inputElement = event.target;
+                 const playerIndex = parseInt(inputElement.dataset.playerIndex, 10);
+                 const param = inputElement.dataset.param;
+                 const newValue = parseFloat(inputElement.value);
+
+                 if (!isNaN(newValue) && playerIndex >= 0 && playerIndex < playersData.length && playersData[playerIndex].hasOwnProperty(param)) {
+                     playersData[playerIndex][param] = newValue;
+                     console.log(`Updated playersData[${playerIndex}].${param} to ${newValue}`);
+                     const updatedPlayerPerformance = calculatePerformance(playersData[playerIndex]);
+                     players[playerIndex] = updatedPlayerPerformance;
+                     updateTableRowCalculatedCells(playerIndex);
+                     console.log(`Recalculated performance and updated table row for player index ${playerIndex}`);
+                 } else {
+                     console.error("Invalid parameter change event:", event);
+                 }
+             } else {
+                  // Initial load or programmatic change - ensure price sync and calculations
+                  updateMarketPriceFromInput(); // Ensure price is read
+                  calculateAllPlayersPerformance(); // Ensure calculations run
+                  updateTableCalculatedCells(); // Ensure table reflects calculations
+             }
+        }
+
+        function updateTableRowCalculatedCells(playerIndex) {
+             const pCalc = players[playerIndex];
+             if (!pCalc || pCalc.id === undefined) { // Add check for valid player object
+                 console.warn("Cannot update row, invalid player data for index:", playerIndex);
+                 return;
+             };
+             // Use querySelector for robustness if IDs somehow change or are missing temporarily
+             const row = document.getElementById('player-data').rows[playerIndex + 1]; // +1 to skip header row
+             if (!row) {
+                console.warn("Cannot find table row for index:", playerIndex);
+                return;
+             }
+
+             const actualGenCell = row.querySelector(`#actualGen-${pCalc.id}`);
+             const totalCostCell = row.querySelector(`#totalCost-${pCalc.id}`);
+             const totalRevenueCell = row.querySelector(`#totalRevenue-${pCalc.id}`);
+             const profitCell = row.querySelector(`#profit-${pCalc.id}`);
+
+             if(actualGenCell) actualGenCell.innerHTML = formatNumber(pCalc.actualGen, 0); else console.warn(`Cell actualGen-${pCalc.id} not found`);
+             if(totalCostCell) totalCostCell.innerHTML = formatCurrency(pCalc.totalCost); else console.warn(`Cell totalCost-${pCalc.id} not found`);
+             if(totalRevenueCell) totalRevenueCell.innerHTML = formatCurrency(pCalc.totalRevenue); else console.warn(`Cell totalRevenue-${pCalc.id} not found`);
+             if(profitCell) profitCell.innerHTML = formatCurrency(pCalc.profit); else console.warn(`Cell profit-${pCalc.id} not found`);
+         }
+
+        function updateTableCalculatedCells() {
+            // Ensure 'players' array is populated correctly before trying to update
+            if (players.length !== n) {
+                console.warn("Player performance array not ready, recalculating before updating table.");
+                calculateAllPlayersPerformance();
+            }
+             players.forEach((pCalc, index) => {
+                 updateTableRowCalculatedCells(index);
+             });
+              console.log("All calculated cells in the table updated.");
+         }
+
+
+        function displayResultsHeader(title) {
+             resultsDiv.innerHTML += `<div class="result-section"><h3>${title}</h3></div>`;
+        }
+        function appendToLastResultSection(htmlContent) {
+             const sections = resultsDiv.getElementsByClassName('result-section');
+             if (sections.length > 0) {
+                 sections[sections.length - 1].innerHTML += htmlContent;
+             } else {
+                 // If no sections exist yet, create one
+                 resultsDiv.innerHTML += `<div class="result-section">${htmlContent}</div>`;
+             }
+        }
+        function displayCharacteristicFunction() {
+            if (!characteristicFunction) {
+                appendToLastResultSection('<p style="color:red;">Characteristic function not calculated yet.</p>');
+                return;
+            }
+            let html = `<p><span class="tooltip">Value v(S)<span class="tooltiptext">The total profit generated by the members of coalition S operating together. Higher profit is better. v(N) is the total profit of the grand coalition.</span></span> for each coalition S:</p><ul>`;
+            const coalitions = getCoalitions();
+            coalitions.sort((a, b) => {
+                if (a.length !== b.length) return a.length - b.length;
+                return coalitionToKey(a).localeCompare(coalitionToKey(b));
+            });
+            coalitions.forEach(coalition => {
+                 const key = coalitionToKey(coalition);
+                 const value = characteristicFunction[key];
+                 const formattedValue = (typeof value === 'number' && !isNaN(value)) ? formatCurrency(value) : 'N/A';
+                 html += `<li>v(${formatCoalition(coalition)}) = ${formattedValue}</li>`;
+            });
+            html += `</ul>`;
+            appendToLastResultSection(html);
+        }
+        function displayAllocationResults(title, allocation, tooltipText, methodNote = "") {
+             let html = `<p>Allocation based on <span class="tooltip">${title}<span class="tooltiptext">${tooltipText}</span></span>:</p>`;
+             if (!isValidAllocation(allocation)) {
+                  html += `<p style="color:red;">Error: Invalid allocation data received for ${title}.</p>`;
+                  appendToLastResultSection(html);
+                  return;
+             }
+             if (methodNote) {
+                 html += `<p><i>${methodNote}</i></p>`;
+             }
+             html += `<ul>`;
+             let totalAllocated = 0;
+             allocation.forEach((value, index) => {
+                if (index < players.length) {
+                    html += `<li>Player ${players[index].id} (${players[index].type}): ${formatCurrency(value)}</li>`;
+                    if (typeof value === 'number' && !isNaN(value)) {
+                        totalAllocated += value;
+                    }
+                } else {
+                     html += `<li>Invalid player index ${index}: ${formatCurrency(value)}</li>`;
+                }
+             });
+             html += `</ul>`;
+             html += `<p>Total Allocated Profit: ${formatCurrency(totalAllocated)}</p>`;
+             const coreCheck = checkCoreConditions(allocation);
+             html += `<h4>Core Check for this Allocation:</h4>`;
+             if (coreCheck.satisfied) {
+                 html += `<p style="color: green;"><b>This allocation IS in the Core.</b> It is stable.</p>`;
+             } else {
+                 html += `<p style="color: red;"><b>This allocation is NOT in the Core.</b> It is unstable.</p>`;
+             }
+             html += `<ul>`;
+             coreCheck.messages.forEach(msg => html += `<li>${msg}</li>`);
+             html += `</ul>`;
+
+             appendToLastResultSection(html);
+        }
+
+        // --- Button Click Handlers ---
+
+        function recalculateAllAnalysis() {
+             console.clear();
+             resultsDiv.innerHTML = '<p>Recalculating all analysis based on current parameters...</p>';
+             console.log("Starting full recalculation...");
+             updateMarketPriceFromInput();
+             calculateAllPlayersPerformance(); // Recalculates 'players' array
+             updateTableCalculatedCells();     // Updates display based on 'players' array
+             calculateV(); // Explicitly calculate V first using 'players' array
+             if (!characteristicFunction) {
+                 resultsDiv.innerHTML = '<p style="color:red;">Error calculating characteristic function after parameter update. Cannot proceed.</p>';
+                 return;
+             }
+             console.log("Characteristic function recalculated.");
+             dataChanged = false;
+             updatePromptDiv.style.display = 'none';
+             runAllDisplay(); // Run and display results based on new v(S)
+             console.log("All analyses run and displayed.");
+        }
+
+
+        function showCharacteristicFunction() {
+             if (dataChanged) {
+                 resultsDiv.innerHTML = '<p style="color:orange;">Parameters have changed. Please click "Recalculate All Analysis" first.</p>';
+                 return;
+             }
+             resultsDiv.innerHTML = '';
+             displayResultsHeader("Characteristic Function v(S)");
+             if (!characteristicFunction) calculateV();
+             if (characteristicFunction) {
+                displayCharacteristicFunction();
+             } else {
+                 appendToLastResultSection('<p style="color:red;">Error calculating characteristic function.</p>');
+             }
+        }
+
+        function calculateAndShowShapley() {
+             if (dataChanged) {
+                 resultsDiv.innerHTML = '<p style="color:orange;">Parameters have changed. Please click "Recalculate All Analysis" first.</p>';
+                 return;
+             }
+             resultsDiv.innerHTML = '';
+             displayResultsHeader("Shapley Value");
+             const shapley = calculateShapleyValues();
+             if (shapley && isValidAllocation(shapley)) {
+                displayAllocationResults("Shapley Value", shapley, "A fair allocation distributing the total profit v(N) based on players' average marginal contributions to the profit of all possible coalitions.");
+             } else {
+                 appendToLastResultSection('<p style="color:red;">Error calculating or validating Shapley values.</p>');
+             }
+        }
+
+         function analyzeCore() {
+             if (dataChanged) {
+                 resultsDiv.innerHTML = '<p style="color:orange;">Parameters have changed. Please click "Recalculate All Analysis" first.</p>';
+                 return;
+             }
+             resultsDiv.innerHTML = '';
+              if (!characteristicFunction) calculateV(); // Ensure v(S) is available
+              if (characteristicFunction) {
+                 const coreDescHtml = getCoreDescription();
+                 resultsDiv.innerHTML = coreDescHtml;
+              } else {
+                  resultsDiv.innerHTML = '<div class="result-section"><h3>Core Analysis</h3><p style="color:red;">Error calculating characteristic function, cannot analyze Core.</p></div>';
+              }
+         }
+
+         function calculateAndShowNucleolus() {
+             if (dataChanged) {
+                 resultsDiv.innerHTML = '<p style="color:orange;">Parameters have changed. Please click "Recalculate All Analysis" first.</p>';
+                 return;
+             }
+             resultsDiv.innerHTML = '';
+             displayResultsHeader("Nucleolus");
+
+             const nucleolusResult = calculateNucleolus(); // Will trigger calculateV if needed
+
+             if (nucleolusResult && nucleolusResult.allocation && isValidAllocation(nucleolusResult.allocation)) {
+                  let note = nucleolusResult.message || "";
+                 displayAllocationResults("Nucleolus", nucleolusResult.allocation, "An allocation that aims to minimize the 'unhappiness' (excess = v(S)-x(S)) of the most unhappy coalition lexicographically. Always in the Core if the Core is non-empty.", note);
+             } else {
+                 appendToLastResultSection(`<p style="color:orange;">${nucleolusResult.message || 'Could not determine a valid Nucleolus allocation.'}</p>`);
+             }
+         }
+
+         function calculateAndShowNashBargaining() {
+             if (dataChanged) {
+                 resultsDiv.innerHTML = '<p style="color:orange;">Parameters have changed. Please click "Recalculate All Analysis" first.</p>';
+                 return;
+             }
+            resultsDiv.innerHTML = '';
+            displayResultsHeader("Nash Bargaining Solution");
+             const nbs = calculateNashBargaining();
+             if (nbs && isValidAllocation(nbs)) {
+                 displayAllocationResults("Nash Bargaining Solution", nbs, "An allocation maximizing the product of players' gains relative to a 'disagreement point' (individual profits v({i})). Splits surplus equally over disagreement payoffs.");
+             } else {
+                appendToLastResultSection('<p style="color:red;">Error calculating or validating Nash Bargaining Solution.</p>');
+             }
+         }
+
+        function runAllDisplay() {
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            if (!characteristicFunction) {
+                 resultsDiv.innerHTML = '<p style="color:red;">Characteristic function is not available. Recalculation needed.</p>';
+                 return;
+            }
+
+            // 1. Characteristic Function
+            displayResultsHeader("1. Characteristic Function v(S)");
+            displayCharacteristicFunction();
+
+            // 2. Shapley Value
+            displayResultsHeader("2. Shapley Value");
+            const shapley = calculateShapleyValues();
+             if (shapley && isValidAllocation(shapley)) {
+                displayAllocationResults("Shapley Value", shapley, "Fair allocation based on average marginal contributions.");
+             } else { appendToLastResultSection('<p style="color:red;">Could not calculate/display Shapley.</p>');}
+
+            // 3. Core Analysis
+            resultsDiv.innerHTML += getCoreDescription();
+
+            // 4. Nucleolus (n=3 exact, n=4 heuristic)
+             displayResultsHeader("4. Nucleolus");
+             const nucleolusResult = calculateNucleolus();
+             if (nucleolusResult && nucleolusResult.allocation && isValidAllocation(nucleolusResult.allocation)) {
+                 let note = nucleolusResult.message || "";
+                 displayAllocationResults("Nucleolus", nucleolusResult.allocation, "Minimizes maximum coalition unhappiness lexicographically. In Core if non-empty.", note);
+             } else {
+                  appendToLastResultSection(`<p style="color:orange;">${nucleolusResult.message || 'Could not determine a valid Nucleolus allocation.'}</p>`);
+             }
+
+            // 5. Nash Bargaining
+            displayResultsHeader("5. Nash Bargaining Solution");
+            const nbs = calculateNashBargaining();
+            if (nbs && isValidAllocation(nbs)) {
+                displayAllocationResults("Nash Bargaining Solution", nbs, "Splits surplus equally over individual profits.");
+            } else { appendToLastResultSection('<p style="color:red;">Could not calculate/display Nash Bargaining Solution.</p>'); }
+        }
+
+        function runAll() {
+            recalculateAllAnalysis();
+        }
+
+
+        // --- Initial Setup ---
+        window.onload = () => {
+            console.log("Window loaded. Setting up...");
+            document.getElementById('marketPrice').value = marketPrice.toFixed(2);
+            populateTable(); // Create interactive table and calculate initial performance
+            dataChanged = false; // Start with data consistent
+            updatePromptDiv.style.display = 'none'; // Hide prompt initially
+             resultsDiv.innerHTML = `<p>Generator data and individual performance loaded for ${n} players. Parameters are now interactive.</p>
+             <p><i>Change Market Price or table values, then click <b>"Recalculate All Analysis"</b> to update the CGT results.</i></p>
+             <p>Tooltips (<span class="tooltip">like this<span class="tooltiptext">Hover over dotted underlined text for explanations.</span></span>) provide definitions.</p>
+             <p style="color: #555;">Note: Core analysis provides general definitions. Nucleolus calculation is exact for n=3 and uses a heuristic (comparing Shapley/NBS excesses) for n=4. It's not implemented for other n.</p>`;
+             console.log("Initial setup complete.");
+        };
+
+    </script>
+</body>
+</html>
