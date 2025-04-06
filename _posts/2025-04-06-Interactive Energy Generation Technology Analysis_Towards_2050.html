@@ -144,7 +144,7 @@ tags: [Blog]
     <h2>Techno-Economic Assessment of Energy Technologies: Calculations of NPV & Payback</h2>
 
     <div class="controls">
-        <label for="electricityPrice">Avg. Electricity Price (£/MWh):</label>
+        <label for="electricityPrice">Avg. Energy Price (£/MWh):</label>
         <input type="number" id="electricityPrice" value="100" step="1" onchange="updateAllCalculations()">
 
         <label for="carbonPrice">Carbon Price (£/tCO2):</label>
@@ -192,7 +192,7 @@ tags: [Blog]
         <ul>
              <li>**Interactivity:** Parameter cells (light blue background: Max GW (2025) through CF) are editable. Click to edit, press Enter or click outside to confirm. ID and Type are not editable.</li>
              <li>**Calculations:** Financial results (Investment, Cash Flow, NPV, Payback) are calculated based on the editable **'Max GW (2050)'** value (which is converted internally to MW). NPV calculation uses the 'Econ Life (yrs)'. **Payback period calculation ignores the 'Econ Life (yrs)' constraint** and reports the theoretical time to recover investment if mathematically possible, otherwise 'Never'.</li>
-            <li>**Global Controls:** Avg. Electricity Price and Carbon Price apply to all technologies. Changing these triggers a recalculation for all rows.</li>
+            <li>**Global Controls:** Avg. Energy Price and Carbon Price apply to all technologies. Changing these triggers a recalculation for all rows.</li>
              <li>**Set All Fixed Cost Frac (φ):** Use the input and 'Apply φ' button to override the 'Fixed Cost Frac \[φ]' column for all technologies simultaneously. Individual cells in that column can still be edited afterwards.</li>
             <li>Investment is assumed upfront (Year 0).</li>
             <li>Revenue, Operational Costs (Variable & Fixed), and Carbon Costs are assumed constant over the economic lifetime.</li>
