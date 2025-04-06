@@ -145,7 +145,7 @@ tags: [Blog]
         <input type="number" id="carbonPrice" value="100" step="1" onchange="updateAllCalculations()">
 
         <label for="fixedCostFraction">Set All Fixed Cost Frac (φ):</label>
-        <input type="number" id="fixedCostFraction" value="1.0" step="0.01" min="0" title="Set value for all rows in the 'Fixed Cost Frac' column">
+        <input type="number" id="fixedCostFraction" value="0.0" step="0.01" max="1.0" title="Set value for all rows in the 'Fixed Cost Frac' column">
         <button onclick="applyGlobalFixedCostFraction()" title="Apply this value to all rows">Apply φ</button>
 
         <div class="button-group">
