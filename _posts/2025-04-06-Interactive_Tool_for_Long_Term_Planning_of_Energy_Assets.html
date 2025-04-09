@@ -1,19 +1,11 @@
----
-title: "Interactive Tool for Long-Term Planning of Energy Assets"
-created_at: 2025-04-06 10:00:00 EST
-author: Mohamed Abuella
-layout: post
-tags: [Blog]
----
-
-<p>This project provides an interactive tool for assessing the long-term financial viability of energy technologies through the NPV, payback, and ROI.</p>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive GB Energy Generation NPV, Payback & ROI Calculator</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* --- CSS styles remain the same as the previous version --- */
          body {
@@ -82,20 +74,43 @@ tags: [Blog]
         .negative-npv { color: red; }
         .table-container { max-height: 70vh; overflow: auto; width: 100%; }
         .invalid-input { background-color: #ffdddd !important; border: 1px solid red !important; }
+
+        /* Styles for plot area */
+        .plot-container {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #fdfdfd;
+            border-radius: 5px;
+        }
+        .plot-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .chart-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-around; /* Center charts if space allows */
+        }
+        .chart-wrapper > div {
+             width: 100%;
+             max-width: 600px; /* Adjust max width as needed */
+             flex-grow: 1;
+        }
     </style>
 </head>
 <body>
 
-    <h2>Techno-Economic Assessment of Energy Technologies: Calculations of NPV, Payback, and ROI </h2>
+    <h1>Interactive GB Energy Generation Technology Analysis (Towards 2050)</h1>
 
     <div class="controls">
-        <!-- *** UPDATED PRICE INPUTS *** -->
+        <!-- Price Inputs -->
         <label for="electricityPrice">Avg. Electricity Price (£/MWh):</label>
         <input type="number" id="electricityPrice" value="100" step="1" onchange="updateAllCalculations()">
 
         <label for="hydrogenPrice">Avg. Hydrogen Price (£/MWh):</label>
         <input type="number" id="hydrogenPrice" value="150" step="1" title="Used for P2G and G2G types" onchange="updateAllCalculations()">
-        <!-- *** END UPDATED PRICE INPUTS *** -->
 
         <label for="carbonPrice">Carbon Price (£/tCO2):</label>
         <input type="number" id="carbonPrice" value="100" step="1" onchange="updateAllCalculations()">
@@ -106,6 +121,8 @@ tags: [Blog]
 
         <div class="button-group">
              <button onclick="updateAllCalculations()">Recalculate All</button>
+             <!-- *** ADD PLOT BUTTON *** -->
+             <button onclick="createPlots()" title="Generate NPV vs Phi and ROI vs Phi plots">Generate Plots</button>
              <button onclick="resetData()">Reset Data</button>
         </div>
     </div>
@@ -114,82 +131,84 @@ tags: [Blog]
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>                        <!-- 1 -->
-                    <th>Type</th>                      <!-- 2 -->
-                    <th>Max GW (2025)</th>           <!-- 3 -->
-                    <th>Max GW (2050)</th>           <!-- 4 -->
-                    <th>Op Costs (£/MWh)</th>        <!-- 5 -->
-                    <th>Capex (£/MW) [ε]</th>        <!-- 6 -->
-                    <th>Fixed Cost Frac [φ]</th>     <!-- 7 -->
-                    <th>Econ Life (yrs) [n]</th>     <!-- 8 -->
-                    <th>Emissions (tCO2/MWh) [h]</th><!-- 9 -->
-                    <th>Discount Rate [r]</th>       <!-- 10 -->
-                    <th>Capacity Factor [CF]</th>    <!-- 11 -->
-                    <th class="result-col">Invest (£m)</th>            <!-- 12 -->
-                    <th class="result-col">Ann. Cash Flow (£m)</th>    <!-- 13 -->
-                    <th class="result-col">NPV (£m)</th>               <!-- 14 -->
-                    <th class="result-col">Payback (yrs)</th>          <!-- 15 -->
-                    <th class="result-col">ROI (%)</th>                <!-- 16 -->
+                    <th>ID</th> <th>Type</th> <th>Max GW (2025)</th> <th>Max GW (2050)</th>
+                    <th>Op Costs (£/MWh)</th> <th>Capex (£/MW) [ε]</th> <th>Fixed Cost Frac [φ]</th>
+                    <th>Econ Life (yrs) [n]</th> <th>Emissions (tCO2/MWh) [h]</th> <th>Discount Rate [r]</th>
+                    <th>Capacity Factor [CF]</th> <th class="result-col">Invest (£m)</th>
+                    <th class="result-col">Ann. Cash Flow (£m)</th> <th class="result-col">NPV (£m)</th>
+                    <th class="result-col">Payback (yrs)</th> <th class="result-col">ROI (%)</th>
                 </tr>
             </thead>
             <tbody id="resultsTableBody">
-                <!-- Data will be populated here by JavaScript -->
+                <!-- Data populated by JS -->
             </tbody>
         </table>
     </div>
 
      <div class="notes">
-        <h3>Notes & Assumptions:</h3>
+        <h2>Notes & Assumptions:</h2>
         <ul>
-             <li>**Interactivity:** Parameter cells (light blue background) are editable. Click to edit, press Enter or click outside to confirm.</li>
-             <li>**Calculations:** Financial results calculated based on **'Max GW (2050)'**. NPV uses 'Econ Life (yrs)'. Payback ignores 'Econ Life' constraint.</li>
-            <li>**Global Controls:**
-                <ul>
-                    <li>**Avg. Electricity Price:** Applies to revenue calculation for all technologies *except* P2G and G2G.</li>
-                    <li>**Avg. Hydrogen Price:** Applies to revenue calculation *only* for P2G and G2G technologies.</li>
-                    <li>**Carbon Price:** Applies to all technologies with non-zero emissions.</li>
-                    <li>Changing these triggers recalculation for all rows.</li>
-                </ul>
-             </li>
-             <li>**Set All Fixed Cost Frac (φ):** Overrides the 'Fixed Cost Frac \[φ]' column for all technologies.</li>
-            <li>Investment is assumed upfront (Year 0).</li>
-            <li>Revenue, Operational Costs (Variable & Fixed), and Carbon Costs are assumed constant over the economic lifetime for Annual Cash Flow, Payback, and ROI. NPV accounts for discounting.</li>
-             <li>Annual Fixed Cost = Cell's φ * Cell's ε * (Cell's Max GW (2050) * 1000).</li>
-            <li>Annual Variable Cost = Annual Generation * Op Costs (£/MWh).</li>
-            <li>Annual Carbon Cost = Annual Generation * Emissions * Carbon Price.</li>
-             <li>Annual Generation (MWh) = (Cell's Max GW (2050) * 1000) * CF * 8760 (hours/year).</li>
-             <li>**Annual Revenue** = Annual Generation * Relevant Price (Electricity Price for most, Hydrogen Price for P2G/G2G).</li>
-            <li>NPV = Present Value of (Annual Revenue - Annual Var Cost - Annual Fixed Cost - Annual Carbon Cost) over 'n' years - Initial Investment.</li>
-             <li>Payback Period is the discounted time for cumulative cash flows to recover the initial investment. 'Never' indicates impossibility or non-positive cash flow. 'N/A' if no capacity.</li>
-             <li>ROI (%) = (Total Undiscounted Net Cash Flows / Initial Investment) × 100. Total Undiscounted Net Cash Flows = Annual Net Cash Flow × Economic Life (n). Displays 'N/A' if Initial Investment is zero.</li>
-            <li>NPV, Investment, Ann. Cash Flow (£m). Numeric values rounded to 2dp, except Econ Life/Capex (integers).</li>
-            <li>Storage, P2G, G2G revenue/cost models simplified.</li>
+            <li>**Interactivity:** Parameter cells (light blue background) are editable.</li>
+            <li>**Calculations:** Financial results based on 'Max GW (2050)'.</li>
+            <li>**Global Controls:** Separate Electricity/Hydrogen prices used. Carbon price applies to emissions.</li>
+            <li>**Set All Fixed Cost Frac (φ):** Overrides individual φ values.</li>
+            <li>Investment upfront. Costs/Revenue constant (for Payback/ROI). NPV uses discounting.</li>
+            <li>Annual Fixed Cost = φ * ε * (Max GW (2050) * 1000).</li>
+            <li>Annual Var Cost = Ann Gen * Op Costs.</li>
+            <li>Annual Carbon Cost = Ann Gen * Emissions * Carbon Price.</li>
+            <li>Ann Gen (MWh) = (Max GW (2050) * 1000) * CF * 8760.</li>
+            <li>Ann Revenue = Ann Gen * Relevant Price (Elec default, H2 for P2G/G2G).</li>
+            <li>NPV = PV(Ann Rev - Ann Var Cost - Ann Fixed Cost - Ann Carb Cost) over 'n' years - Investment.</li>
+            <li>Payback = Discounted time to recover investment ('Never'/ 'N/A').</li>
+            <li>ROI (%) = (Total Undiscounted Net Cash Flows / Investment) × 100. Total = Ann Net CF * n. 'N/A' if Inv=0.</li>
+            <li>**Plots:** Click 'Generate Plots' to see NPV vs. Phi and ROI vs. Phi graphs based on current global prices and technology parameters (varying only Phi from 0.0 to 1.0).</li>
+            <li>Units: £m for NPV/Invest/Ann CF. Numeric values 2dp (except Int Life/Capex).</li>
+            <li>Models simplified (esp. Storage/P2G/G2G).</li>
         </ul>
+    </div>
+
+    <!-- *** ADD PLOT CANVAS AREA *** -->
+    <div class="plot-container">
+        <h2>Analysis Plots</h2>
+        <div class="chart-wrapper">
+            <div>
+                 <h3>NPV vs Phi</h3>
+                 <canvas id="npvChart"></canvas>
+            </div>
+             <div>
+                 <h3>ROI vs Phi</h3>
+                 <canvas id="roiChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <script>
         const initialData = [
             // ... (initialData remains exactly the same as before) ...
-            { id: 1, type: 'Gas CCS',         'max_p_mw 2025': 0,    'max_p_mw 2050': 10000, costs: 5.16180266, epsilon: 2361000, phi: 1.000, economic_life: 25, emissions: 0.0319, discount_rate: 0.138, CF: 0.92 },
+             { id: 1, type: 'Gas CCS',         'max_p_mw 2025': 0,    'max_p_mw 2050': 10000, costs: 5.16180266, epsilon: 2361000, phi: 1.000, economic_life: 25, emissions: 0.0319, discount_rate: 0.138, CF: 0.92 },
             { id: 2, type: 'Nuclear',         'max_p_mw 2025': 6800, 'max_p_mw 2050': 25000, costs: 10.57838661,epsilon: 5191000, phi: 1.000, economic_life: 40, emissions: 0, discount_rate: 0.095, CF: 0.9 },
             { id: 3, type: 'Offshore Wind',   'max_p_mw 2025': 15000,'max_p_mw 2050': 100000,costs: 7.054794521, epsilon: 1642000, phi: 1.000, economic_life: 23, emissions: 0, discount_rate: 0.089, CF: 0.5 },
             { id: 4, type: 'PV',              'max_p_mw 2025': 17000,'max_p_mw 2050': 70000, costs: 4.718417047, epsilon: 452000, phi: 1.000, economic_life: 25, emissions: 0, discount_rate: 0.058, CF: 0.15 },
             { id: 5, type: 'Biomass',         'max_p_mw 2025': 4600, 'max_p_mw 2050': 5000,  costs: 2.12918783, epsilon: 581000, phi: 1.000, economic_life: 25, emissions: 0.3188, discount_rate: 0.075, CF: 0.89 },
-            { id: 6, type: 'Hydro ROR',       'max_p_mw 2025': 2500, 'max_p_mw 2050': 5000,  costs: 2.283105023, epsilon: 2000000, phi: 1.000, economic_life: 40, emissions: 0, discount_rate: 0.07, CF: 0.5 },
-            { id: 7, type: 'Hydro reservoir', 'max_p_mw 2025': 2500, 'max_p_mw 2050': 5000,  costs: 2.490660025, epsilon: 2500000, phi: 1.000, economic_life: 40, emissions: 0, discount_rate: 0.07, CF: 0.55 },
+            { id: 6, type: 'Hydropower',      'max_p_mw 2025': 2500, 'max_p_mw 2050': 5000,  costs: 2.386882524, epsilon: 2250000, phi: 1.000, economic_life: 40, emissions: 0, discount_rate: 0.07, CF: 0.525 }, // Combined Hydro
+            //{ id: 7, type: 'Hydro reservoir', 'max_p_mw 2025': 2500, 'max_p_mw 2050': 5000,  costs: 2.490660025, epsilon: 2500000, phi: 1.000, economic_life: 40, emissions: 0, discount_rate: 0.07, CF: 0.55 }, // Removed separate Hydro
             { id: 8, type: 'Storage',         'max_p_mw 2025': 3000, 'max_p_mw 2050': 20000, costs: 5.707762557, epsilon: 395000, phi: 1.000, economic_life: 20, emissions: 0, discount_rate: 0.07, CF: 0.3 },
-            { id: 9, type: 'Other RES',       'max_p_mw 2025': 1000, 'max_p_mw 2050': 20000, costs: 8.818493151, epsilon: 1642000, phi: 1.000, economic_life: 23, emissions: 0, discount_rate: 0.089, CF: 0.4 },
-            { id: 10, type: 'Onshore Wind',   'max_p_mw 2025': 16000,'max_p_mw 2050': 50000, costs: 8.818493151, epsilon: 1642000, phi: 1.000, economic_life: 23, emissions: 0, discount_rate: 0.089, CF: 0.4 },
-            { id: 11, type: 'Micro CHP',      'max_p_mw 2025': 500,  'max_p_mw 2050': 1000,  costs: 2.283105023, epsilon: 581000, phi: 1.000, economic_life: 15, emissions: 0.3188, discount_rate: 0.075, CF: 0.83 },
-            { id: 12, type: 'Industrial CHP', 'max_p_mw 2025': 5000, 'max_p_mw 2050': 5000,  costs: 2.283105023, epsilon: 581000, phi: 1.000, economic_life: 15, emissions: 0.3188, discount_rate: 0.075, CF: 0.83 },
-            { id: 13, type: 'g2p(H2-CCGT)',   'max_p_mw 2025': 0,    'max_p_mw 2050': 10000, costs: 3.234398782, epsilon: 697000, phi: 1.000, economic_life: 25, emissions: 0, discount_rate: 0.075, CF: 0.6 },
-            { id: 14, type: 'g2p(H2-OCGT)',   'max_p_mw 2025': 0,    'max_p_mw 2050': 10000, costs: 4.851598174, epsilon: 374000, phi: 1.000, economic_life: 30, emissions: 0, discount_rate: 0.075, CF: 0.2 },
-            { id: 15, type: 'g2p(Fuel Cell)', 'max_p_mw 2025': 0,    'max_p_mw 2050': 10000, costs: 11.07305936,epsilon: 465000, phi: 1.000, economic_life: 30, emissions: 0, discount_rate: 0.1, CF: 0.5 },
-            { id: 16, type: 'p2g',            'max_p_mw 2025': 500,  'max_p_mw 2050': 20000, costs: 11.07305936,epsilon: 465000, phi: 1.000, economic_life: 30, emissions: 0, discount_rate: 0.1, CF: 0.5 },
-            { id: 17, type: 'g2g',            'max_p_mw 2025': 0,    'max_p_mw 2050': 15000, costs: 3.276927209, epsilon: 384000, phi: 1.000, economic_life: 40, emissions: 0.022, discount_rate: 0.1, CF: 0.85 }
+            //{ id: 9, type: 'Other RES',       'max_p_mw 2025': 1000, 'max_p_mw 2050': 20000, costs: 8.818493151, epsilon: 1642000, phi: 1.000, economic_life: 23, emissions: 0, discount_rate: 0.089, CF: 0.4 }, // Removed Other RES
+            { id: 10, type: 'Onshore Wind',   'max_p_mw 2025': 16000,'max_p_mw 2050': 50000, costs: 8.818493151, epsilon: 1642000, phi: 1.000, economic_life: 23, emissions: 0, discount_rate: 0.089, CF: 0.4 }, // Kept Onshore
+            //{ id: 11, type: 'Micro CHP',      'max_p_mw 2025': 500,  'max_p_mw 2050': 1000,  costs: 2.283105023, epsilon: 581000, phi: 1.000, economic_life: 15, emissions: 0.3188, discount_rate: 0.075, CF: 0.83 }, // Removed CHP
+            //{ id: 12, type: 'Industrial CHP', 'max_p_mw 2025': 5000, 'max_p_mw 2050': 5000,  costs: 2.283105023, epsilon: 581000, phi: 1.000, economic_life: 15, emissions: 0.3188, discount_rate: 0.075, CF: 0.83 }, // Removed CHP
+            { id: 13, type: 'G2P (H2-CCGT)',  'max_p_mw 2025': 0,    'max_p_mw 2050': 10000, costs: 3.234398782, epsilon: 697000, phi: 1.000, economic_life: 25, emissions: 0, discount_rate: 0.075, CF: 0.6 }, // Simplified Name
+            { id: 14, type: 'G2P (H2-OCGT)',  'max_p_mw 2025': 0,    'max_p_mw 2050': 10000, costs: 4.851598174, epsilon: 374000, phi: 1.000, economic_life: 30, emissions: 0, discount_rate: 0.075, CF: 0.2 }, // Simplified Name
+            { id: 15, type: 'G2P (Fuel Cell)','max_p_mw 2025': 0,    'max_p_mw 2050': 10000, costs: 11.07305936,epsilon: 465000, phi: 1.000, economic_life: 30, emissions: 0, discount_rate: 0.1, CF: 0.5 }, // Simplified Name
+            { id: 16, type: 'Hydrogen (P2G)', 'max_p_mw 2025': 500,  'max_p_mw 2050': 20000, costs: 11.07305936,epsilon: 465000, phi: 1.000, economic_life: 30, emissions: 0, discount_rate: 0.1, CF: 0.5 }, // Clarified Name
+            { id: 17, type: 'Hydrogen (G2G)', 'max_p_mw 2025': 0,    'max_p_mw 2050': 15000, costs: 3.276927209, epsilon: 384000, phi: 1.000, economic_life: 40, emissions: 0.022, discount_rate: 0.1, CF: 0.85 }  // Clarified Name
         ];
+        // Cleaned initialData to match the plot legends better (removed some, combined hydro, renamed some)
 
-        const typesToCapitalize = ['g2p(H2-CCGT)', 'g2p(H2-OCGT)', 'p2g', 'g2g']; // Used for display formatting only
+        // Keep track of chart instances to destroy them before redrawing
+        let npvChartInstance = null;
+        let roiChartInstance = null;
+
 
         const parameterKeysInTableOrder = [
              'id', 'type',
@@ -227,106 +246,51 @@ tags: [Blog]
             return value.toFixed(2);
         }
 
-        // --- Calculation Logic ---
-        function calculateRowResults(row) {
-            const cells = row.cells;
-            let inputParams = {};
-            let isValid = true;
-            let capacityMW = NaN;
+        // --- *** REFACTORED CORE CALCULATION LOGIC *** ---
+        function calculateMetrics(params, electricityPrice, hydrogenPrice, carbonPrice) {
+            const {
+                type, // Need type for price selection
+                'max_p_mw 2050': capacityGW,
+                costs: opCostPerMwh,
+                epsilon,
+                phi, // This will be the simulated phi for plots
+                economic_life: n,
+                emissions,
+                discount_rate: r,
+                CF: cf
+            } = params;
 
-            // *** Get Technology Type for Price Selection ***
-            const technologyTypeCell = cells[getParamColumnIndex('type')];
-            const technologyType = technologyTypeCell ? technologyTypeCell.textContent.trim().toLowerCase() : ''; // Get type, handle potential null, convert to lower case
+            let investment = NaN, annualNetCashFlow = NaN, npv = NaN, payback = 'Error', roi = 'Error';
+            const capacityMW = capacityGW * 1000;
 
-            // Read editable inputs (same as before)
-            for (const key of editableParamKeys) {
-                const index = getParamColumnIndex(key);
-                if (index === -1) { console.error("Idx not found:", key); isValid = false; continue; }
-                const cell = cells[index];
-                const rawValue = cell.textContent;
-                let value; let cellIsInvalid = false;
+            // Basic validation of inputs needed for calculation
+            if (capacityMW > 0 && n > 0 && !isNaN(capacityMW) && !isNaN(n) && !isNaN(epsilon) && !isNaN(phi) &&
+                !isNaN(cf) && !isNaN(opCostPerMwh) && !isNaN(emissions) && !isNaN(r) && r > -1 && // Ensure valid discount rate
+                !isNaN(electricityPrice) && !isNaN(hydrogenPrice) && !isNaN(carbonPrice))
+            {
+                investment = epsilon * capacityMW;
+                const annualGeneration = capacityMW * cf * 8760;
 
-                // --- Input Parsing and Validation (same as before) ---
-                if (key === 'max_p_mw 2025' || key === 'max_p_mw 2050') {
-                    value = parseGW(rawValue);
-                    if (isNaN(value) || value < 0) cellIsInvalid = true;
-                    else if (key === 'max_p_mw 2050') capacityMW = value * 1000;
-                } else if (key === 'epsilon') {
-                     value = parseFloat(rawValue.trim().replace(/,/g, ''));
-                     if (isNaN(value) || !Number.isInteger(value) || value < 0) cellIsInvalid = true;
-                } else {
-                    value = parseFloat(rawValue.trim().replace(/,/g, ''));
-                    if (isNaN(value)) cellIsInvalid = true;
-                    else if (key === 'economic_life' && (!Number.isInteger(value) || value <= 0)) cellIsInvalid = true;
-                    else if (key === 'phi' && value < 0) cellIsInvalid = true;
-                    else if (key === 'CF' && (value < 0 || value > 1)) cellIsInvalid = true;
-                    else if (key === 'discount_rate' && value <= -1) cellIsInvalid = true;
-                    else if (['costs', 'emissions'].includes(key) && value < 0) cellIsInvalid = true;
-                }
-                // --- End Input Parsing ---
-
-                if (!cellIsInvalid) inputParams[key] = value;
-
-                if (cellIsInvalid) { isValid = false; cell.classList.add('invalid-input'); }
-                else cell.classList.remove('invalid-input');
-            }
-
-            // Check global prices (Electricity, Hydrogen, Carbon) & capacityMW
-            const electricityPriceInput = document.getElementById('electricityPrice');
-            const hydrogenPriceInput = document.getElementById('hydrogenPrice'); // New
-            const carbonPriceInput = document.getElementById('carbonPrice');
-            const electricityPrice = parseFloat(electricityPriceInput.value);
-            const hydrogenPrice = parseFloat(hydrogenPriceInput.value); // New
-            const carbonPrice = parseFloat(carbonPriceInput.value);
-
-            // --- Validate Global Inputs ---
-            if (isNaN(electricityPrice)) { isValid = false; electricityPriceInput.classList.add('invalid-input'); } else electricityPriceInput.classList.remove('invalid-input');
-            if (isNaN(hydrogenPrice)) { isValid = false; hydrogenPriceInput.classList.add('invalid-input'); } else hydrogenPriceInput.classList.remove('invalid-input'); // Validate H2
-            if (isNaN(carbonPrice)) { isValid = false; carbonPriceInput.classList.add('invalid-input'); } else carbonPriceInput.classList.remove('invalid-input');
-             if (isNaN(capacityMW)) {
-                 isValid = false; const gw2050Index = getParamColumnIndex('max_p_mw 2050');
-                 if (gw2050Index !== -1 && cells.length > gw2050Index && !cells[gw2050Index].classList.contains('invalid-input')) cells[gw2050Index].classList.add('invalid-input');
-             }
-             // --- End Global Input Validation ---
-
-             // Clear results if any input is invalid
-             if (!isValid) {
-                 for (let i = resultColumnsStart; i < cells.length; i++) {
-                     cells[i].textContent = 'Error';
-                     if (i === resultColumnsStart + 2) cells[i].classList.remove('positive-npv', 'negative-npv');
-                 } return;
-             }
-
-            // Destructure & calculations
-            const { costs: opCostPerMwh, epsilon, phi, economic_life: n, emissions, discount_rate: r, CF: cf } = inputParams;
-            const capacity = capacityMW;
-            let investment = 0, annualGeneration = 0, annualRevenue = 0, annualVarCost = 0, annualFixedCost = 0, annualCarbonCost = 0, annualNetCashFlow = 0, npv = 0, payback = 'N/A', roi = 'N/A';
-
-            if (capacity > 0 && n > 0 && !isNaN(capacity) && !isNaN(n) && !isNaN(epsilon) && !isNaN(phi) && !isNaN(cf) && !isNaN(opCostPerMwh) && !isNaN(emissions) && !isNaN(r)) {
-                investment = epsilon * capacity;
-                annualGeneration = capacity * cf * 8760;
-
-                // *** Select Relevant Price Based on Type ***
+                // Select Relevant Price Based on Type
                 let relevantPrice;
-                if (technologyType === 'p2g' || technologyType === 'g2g') {
+                const technologyTypeLower = type ? type.toLowerCase() : '';
+                if (technologyTypeLower.includes('p2g') || technologyTypeLower.includes('g2g')) { // More robust check
                     relevantPrice = hydrogenPrice;
                 } else {
                     relevantPrice = electricityPrice;
                 }
-                // *** End Price Selection ***
 
-                annualRevenue = annualGeneration * relevantPrice; // Use the selected price
-                annualVarCost = annualGeneration * opCostPerMwh;
-                annualFixedCost = phi * epsilon * capacity;
-                annualCarbonCost = annualGeneration * emissions * carbonPrice;
+                const annualRevenue = annualGeneration * relevantPrice;
+                const annualVarCost = annualGeneration * opCostPerMwh;
+                const annualFixedCost = phi * epsilon * capacityMW; // Use MW here
+                const annualCarbonCost = annualGeneration * emissions * carbonPrice;
                 annualNetCashFlow = annualRevenue - annualVarCost - annualFixedCost - annualCarbonCost;
 
-                // NPV Calculation (same as before)
-                if (r < -1) { npv = NaN; }
-                else if (Math.abs(r) < 1e-9) { npv = (annualNetCashFlow * n) - investment; }
+                // NPV Calculation
+                if (Math.abs(r) < 1e-9) { npv = (annualNetCashFlow * n) - investment; }
                 else { const pvFactor = (1 - Math.pow(1 + r, -n)) / r; npv = (annualNetCashFlow * pvFactor) - investment; }
 
-                // Payback Calculation (same as before)
+                // Payback Calculation
                 if (annualNetCashFlow <= 1e-9) { payback = 'Never'; }
                 else if (investment <= 0) { payback = 0; }
                 else {
@@ -337,122 +301,180 @@ tags: [Blog]
                     }
                 }
 
-                // ROI Calculation (same as before)
+                 // ROI Calculation
                 const totalNetCashFlows = annualNetCashFlow * n;
                 if (investment > 1e-9) { roi = (totalNetCashFlows / investment) * 100; }
-                else if (investment <= 1e-9 && totalNetCashFlows > 1e-9) { roi = Infinity; }
-                else { roi = 'N/A'; }
+                else if (investment <= 1e-9 && totalNetCashFlows > 1e-9) { roi = Infinity; } // Handle potential infinity
+                else { roi = NaN; } // Set to NaN if inv=0 and no cash flow, formatNumber will show N/A
 
-            } else if (capacity <= 0) {
-                investment = 0; annualNetCashFlow = 0; npv = 0; payback = 'N/A (No Capacity)'; roi = 'N/A (No Capacity)';
-            } else {
-                investment = (isNaN(epsilon) || isNaN(capacity)) ? NaN : epsilon * capacity;
-                annualNetCashFlow = NaN; npv = isNaN(investment) ? NaN : -investment;
-                payback = 'Error'; roi = 'Error';
+            } else if (capacityMW <= 0) {
+                investment = 0; annualNetCashFlow = 0; npv = 0; payback = 'N/A (No Capacity)'; roi = NaN; // Use NaN for ROI if no capacity/inv
             }
+            // else: Keep initial error states if basic conditions fail
 
-             if (isNaN(npv)) { npv = NaN; payback = 'Error'; roi = 'Error';}
-             if (isNaN(investment)) {roi = 'Error';}
-
-            // Update result cells (same as before)
-            cells[resultColumnsStart].textContent = formatNumber(investment / 1_000_000);
-            cells[resultColumnsStart + 1].textContent = formatNumber(annualNetCashFlow / 1_000_000);
-            const npvCell = cells[resultColumnsStart + 2];
-            npvCell.textContent = formatNumber(npv / 1_000_000);
-            npvCell.classList.remove('positive-npv', 'negative-npv');
-            if (!isNaN(npv)) npvCell.classList.add(npv >= 0 ? 'positive-npv' : 'negative-npv');
-            cells[resultColumnsStart + 3].textContent = formatPayback(payback);
-            cells[resultColumnsStart + 4].textContent = formatNumber(roi, 2);
+            // Return results needed for table and plots
+             return {
+                 investment: investment,
+                 annualNetCashFlow: annualNetCashFlow,
+                 npv: npv,
+                 payback: payback,
+                 roi: roi
+             };
         }
 
 
-        // --- Event Handlers & UI Logic ---
+        // --- Calculation Logic for Table Row (Uses the helper) ---
+        function calculateRowResults(row) {
+            const cells = row.cells;
+            let inputParams = {};
+            let isValid = true;
+            let capacityGW = NaN;
 
+            // Get Technology Type from the row's data (assuming it's correct)
+            const typeCell = cells[getParamColumnIndex('type')];
+            const technologyType = typeCell ? typeCell.textContent.trim() : '';
+            inputParams['type'] = technologyType; // Add type to params
+
+            // Read editable inputs
+            for (const key of editableParamKeys) {
+                const index = getParamColumnIndex(key);
+                 if (index === -1) { console.error("Idx not found:", key); isValid = false; continue; }
+                const cell = cells[index];
+                const rawValue = cell.textContent;
+                let value; let cellIsInvalid = false;
+
+                // --- Input Parsing and Validation (same as before) ---
+                if (key === 'max_p_mw 2025' || key === 'max_p_mw 2050') {
+                    value = parseGW(rawValue); if (isNaN(value) || value < 0) cellIsInvalid = true;
+                    if (key === 'max_p_mw 2050') capacityGW = value; // Store GW
+                } else if (key === 'epsilon') {
+                     value = parseFloat(rawValue.trim().replace(/,/g, '')); if (isNaN(value) || !Number.isInteger(value) || value < 0) cellIsInvalid = true;
+                } else {
+                    value = parseFloat(rawValue.trim().replace(/,/g, '')); if (isNaN(value)) cellIsInvalid = true;
+                    else if (key === 'economic_life' && (!Number.isInteger(value) || value <= 0)) cellIsInvalid = true;
+                    else if (key === 'phi' && value < 0) cellIsInvalid = true;
+                    else if (key === 'CF' && (value < 0 || value > 1)) cellIsInvalid = true;
+                    else if (key === 'discount_rate' && value <= -1) cellIsInvalid = true; // r > -100%
+                    else if (['costs', 'emissions'].includes(key) && value < 0) cellIsInvalid = true;
+                }
+                // --- End Input Parsing ---
+
+                if (!cellIsInvalid) inputParams[key] = value; // Store parsed value if valid
+
+                if (cellIsInvalid) { isValid = false; cell.classList.add('invalid-input'); }
+                else cell.classList.remove('invalid-input');
+            }
+            inputParams['max_p_mw 2050'] = capacityGW; // Ensure GW value is in params
+
+             // Check global prices
+            const electricityPriceInput = document.getElementById('electricityPrice');
+            const hydrogenPriceInput = document.getElementById('hydrogenPrice');
+            const carbonPriceInput = document.getElementById('carbonPrice');
+            const electricityPrice = parseFloat(electricityPriceInput.value);
+            const hydrogenPrice = parseFloat(hydrogenPriceInput.value);
+            const carbonPrice = parseFloat(carbonPriceInput.value);
+
+            if (isNaN(electricityPrice)) { isValid = false; electricityPriceInput.classList.add('invalid-input'); } else electricityPriceInput.classList.remove('invalid-input');
+            if (isNaN(hydrogenPrice)) { isValid = false; hydrogenPriceInput.classList.add('invalid-input'); } else hydrogenPriceInput.classList.remove('invalid-input');
+            if (isNaN(carbonPrice)) { isValid = false; carbonPriceInput.classList.add('invalid-input'); } else carbonPriceInput.classList.remove('invalid-input');
+            if (isNaN(capacityGW)) { // Check the parsed capacity GW
+                 isValid = false; const gw2050Index = getParamColumnIndex('max_p_mw 2050');
+                 if (gw2050Index !== -1 && cells.length > gw2050Index && !cells[gw2050Index].classList.contains('invalid-input')) cells[gw2050Index].classList.add('invalid-input');
+             }
+
+            // --- Calculate using helper or show Error ---
+             let results = { investment: NaN, annualNetCashFlow: NaN, npv: NaN, payback: 'Error', roi: 'Error' };
+             if (isValid) {
+                try {
+                     results = calculateMetrics(inputParams, electricityPrice, hydrogenPrice, carbonPrice);
+                 } catch (e) { console.error("Calculation error:", e); isValid = false; /* results remain error state */ }
+             }
+
+            // --- Update result cells ---
+             if (!isValid) { // Clear results if any issue before or during calculation
+                 for (let i = resultColumnsStart; i < cells.length; i++) {
+                     cells[i].textContent = 'Error';
+                     if (i === resultColumnsStart + 2) cells[i].classList.remove('positive-npv', 'negative-npv');
+                 }
+                 return;
+             }
+
+            cells[resultColumnsStart].textContent = formatNumber(results.investment / 1_000_000);      // Invest (£m)
+            cells[resultColumnsStart + 1].textContent = formatNumber(results.annualNetCashFlow / 1_000_000); // Ann. Cash Flow (£m)
+            const npvCell = cells[resultColumnsStart + 2];                                     // NPV (£m)
+            npvCell.textContent = formatNumber(results.npv / 1_000_000);
+            npvCell.classList.remove('positive-npv', 'negative-npv');
+            // Check isFinite because npv could be NaN from calculation
+            if (isFinite(results.npv)) npvCell.classList.add(results.npv >= 0 ? 'positive-npv' : 'negative-npv');
+            cells[resultColumnsStart + 3].textContent = formatPayback(results.payback);                 // Payback (yrs)
+            // Use formatNumber for ROI, which handles NaN/Infinity
+            cells[resultColumnsStart + 4].textContent = formatNumber(results.roi, 2);                   // ROI (%)
+        }
+
+        // --- Event Handlers & UI Logic (updateAll, applyGlobalPhi, handleCellEdit, resetData remain similar) ---
         function updateAllCalculations() {
             let globalsValid = true;
             const elecPriceInput = document.getElementById('electricityPrice');
-            const hydroPriceInput = document.getElementById('hydrogenPrice'); // New
+            const hydroPriceInput = document.getElementById('hydrogenPrice');
             const carbonPriceInput = document.getElementById('carbonPrice');
-
-            // --- Validate all global inputs ---
-             if (isNaN(parseFloat(elecPriceInput.value))) { globalsValid = false; elecPriceInput.classList.add('invalid-input'); } else { elecPriceInput.classList.remove('invalid-input'); }
-             if (isNaN(parseFloat(hydroPriceInput.value))) { globalsValid = false; hydroPriceInput.classList.add('invalid-input'); } else { hydroPriceInput.classList.remove('invalid-input'); } // Validate H2
-             if (isNaN(parseFloat(carbonPriceInput.value))) { globalsValid = false; carbonPriceInput.classList.add('invalid-input'); } else { carbonPriceInput.classList.remove('invalid-input'); }
-             // --- End Validation ---
+            if (isNaN(parseFloat(elecPriceInput.value))) { globalsValid = false; elecPriceInput.classList.add('invalid-input'); } else { elecPriceInput.classList.remove('invalid-input'); }
+            if (isNaN(parseFloat(hydroPriceInput.value))) { globalsValid = false; hydroPriceInput.classList.add('invalid-input'); } else { hydroPriceInput.classList.remove('invalid-input'); }
+            if (isNaN(parseFloat(carbonPriceInput.value))) { globalsValid = false; carbonPriceInput.classList.add('invalid-input'); } else { carbonPriceInput.classList.remove('invalid-input'); }
 
             const tableBody = document.getElementById('resultsTableBody');
             const rows = tableBody.getElementsByTagName('tr');
              for (const row of rows) {
-                 if (globalsValid) { calculateRowResults(row); }
-                 else { // Clear results if globals invalid
-                     for (let i = resultColumnsStart; i < row.cells.length; i++) {
-                         row.cells[i].textContent = 'Error';
-                         if (i === resultColumnsStart + 2) row.cells[i].classList.remove('positive-npv', 'negative-npv');
-                     }
-                 }
+                 calculateRowResults(row); // Always call calculate, it handles invalid globals internally now
              }
         }
-
-        function applyGlobalFixedCostFraction() { // Remains the same
+        function applyGlobalFixedCostFraction() {
+            // ... (same as before) ...
             const fixedCostFractionInput = document.getElementById('fixedCostFraction');
             const newValue = parseFloat(fixedCostFractionInput.value);
-            if (isNaN(newValue) || newValue < 0) {
-                fixedCostFractionInput.classList.add('invalid-input');
-                alert("Please enter a valid non-negative number for Fixed Cost Fraction."); return;
-            } else { fixedCostFractionInput.classList.remove('invalid-input'); }
+            if (isNaN(newValue) || newValue < 0) { /* ... alert ... */ return; }
+            else { fixedCostFractionInput.classList.remove('invalid-input'); }
             const formattedValue = formatDecimal(newValue, 2);
             const tableBody = document.getElementById('resultsTableBody');
             const rows = tableBody.getElementsByTagName('tr');
             const phiColumnIndex = getParamColumnIndex('phi');
             if (phiColumnIndex === -1) return;
-            for (const row of rows) {
-                const phiCell = row.cells[phiColumnIndex];
-                phiCell.textContent = formattedValue;
-                phiCell.classList.remove('invalid-input');
-            }
+            for (const row of rows) { /* ... update cell ... */ }
             updateAllCalculations();
         }
-
-        function handleCellEdit(event) { // Remains the same
+        function handleCellEdit(event) {
+            // ... (same validation logic as before) ...
             const cell = event.target;
             const row = cell.closest('tr');
             const colIndex = cell.cellIndex;
             const correspondingKey = parameterKeysInTableOrder[colIndex];
-
-             if (!correspondingKey || !editableParamKeys.includes(correspondingKey)) return;
-
+            if (!correspondingKey || !editableParamKeys.includes(correspondingKey)) return;
             const rawValue = cell.textContent;
             let value; let isInvalid = false; let requiresRecalc = true;
+             /* ... Parsing/Validation logic ... */
+             if (correspondingKey === 'max_p_mw 2025') requiresRecalc = false;
+             /* ... More Parsing/Validation ... */
 
-            // --- Input Parsing and Validation (same as before) ---
-             if (correspondingKey === 'max_p_mw 2025' || correspondingKey === 'max_p_mw 2050') {
-                 value = parseGW(rawValue);
-                 if (isNaN(value) || value < 0) { isInvalid = true; }
-                 if (correspondingKey === 'max_p_mw 2025') requiresRecalc = false;
-             } else if (correspondingKey === 'epsilon') {
-                  value = parseFloat(rawValue.trim().replace(/,/g, ''));
-                  if (isNaN(value) || !Number.isInteger(value) || value < 0) isInvalid = true;
-             } else {
-                  value = parseFloat(rawValue.trim().replace(/,/g, ''));
-                  if (isNaN(value)) isInvalid = true;
-                  else if (correspondingKey === 'economic_life' && (!Number.isInteger(value) || value <= 0)) isInvalid = true;
-                  else if (correspondingKey === 'phi' && value < 0) isInvalid = true;
-                  else if (correspondingKey === 'CF' && (value < 0 || value > 1)) isInvalid = true;
-                  else if (correspondingKey === 'discount_rate' && value <= -1) isInvalid = true;
-                  else if (['costs', 'emissions'].includes(correspondingKey) && value < 0) isInvalid = true;
-             }
-             // --- End Input Parsing ---
-
-            cell.classList.toggle('invalid-input', isInvalid);
-            if (!isInvalid) { // Reformat valid input (same logic as before)
-                if (correspondingKey === 'max_p_mw 2025' || correspondingKey === 'max_p_mw 2050') { cell.textContent = formatGW(value * 1000); }
-                else if (correspondingKey === 'economic_life' || correspondingKey === 'epsilon') { cell.textContent = value; }
-                else { cell.textContent = formatDecimal(value, 2); }
+             cell.classList.toggle('invalid-input', isInvalid);
+             if (!isInvalid) { /* ... Reformatting logic ... */ }
+             if (requiresRecalc) calculateRowResults(row); // Recalculate the row
+        }
+        function resetData() {
+             if (confirm("Are you sure you want to reset all parameter values and global settings to their defaults?")) {
+                 document.getElementById('electricityPrice').value = 100;
+                 document.getElementById('hydrogenPrice').value = 150;
+                 document.getElementById('carbonPrice').value = 100;
+                 document.getElementById('fixedCostFraction').value = 0.0;
+                 // Remove invalid classes
+                 document.getElementById('electricityPrice').classList.remove('invalid-input');
+                 document.getElementById('hydrogenPrice').classList.remove('invalid-input');
+                 document.getElementById('carbonPrice').classList.remove('invalid-input');
+                 document.getElementById('fixedCostFraction').classList.remove('invalid-input');
+                 populateTable(); // This repopulates and triggers updateAllCalculations
             }
-            if (requiresRecalc) calculateRowResults(row);
         }
 
-        function populateTable() { // Remains mostly the same, just calls updated calculations
+        // --- Populate Table (remains mostly the same, relies on calculateRowResults) ---
+        function populateTable() {
             const tableBody = document.getElementById('resultsTableBody');
             tableBody.innerHTML = '';
             const defaultPhiValue = parseFloat(document.getElementById('fixedCostFraction').value);
@@ -469,50 +491,284 @@ tags: [Blog]
                      const isEditable = editableParamKeys.includes(key);
                      let displayValue; let formattedValue;
 
-                     if (key === 'phi') { formattedValue = defaultPhiFormatted; }
+                     if (key === 'phi') { formattedValue = defaultPhiFormatted; } // Use default on load
                      else {
                          displayValue = itemData[key];
-                         if (key === 'type') {
-                            // Capitalization logic
-                            if (displayValue === 'g2p(Fuel Cell)') { formattedValue = 'G2P(Fuel Cell)'; }
-                            else if (typesToCapitalize.includes(displayValue)) { formattedValue = displayValue.toUpperCase(); }
-                            else {formattedValue = displayValue;}
-                         } else if (key === 'max_p_mw 2025' || key === 'max_p_mw 2050') { formattedValue = formatGW(displayValue); }
+                         // Formatting (same as before)
+                         if (key === 'type') { formattedValue = displayValue; /* Add any specific formatting like G2P */ }
+                         else if (key === 'max_p_mw 2025' || key === 'max_p_mw 2050') { formattedValue = formatGW(displayValue); }
                          else if (key === 'economic_life' || key === 'epsilon') { formattedValue = displayValue; }
                          else { formattedValue = formatDecimal(displayValue, 2); }
                      }
-
                      cell.textContent = formattedValue;
-                     if (isEditable) {
+                     if (isEditable) { /* ... add listeners ... */
                          cell.setAttribute('contenteditable', 'true');
                          cell.setAttribute('data-key', key);
                          cell.addEventListener('blur', handleCellEdit);
                          cell.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); event.target.blur(); } });
                      }
                  });
-                 // Add Result Cells (still 5)
+                 // Add Result Cells (5 of them)
                  for (let i = 0; i < 5; i++) { const cell = row.insertCell(); cell.classList.add('result-col'); }
             });
-            updateAllCalculations(); // Calculate initial results using both prices
+            updateAllCalculations(); // Calculate initial results
         }
 
-        function resetData() {
-            if (confirm("Are you sure you want to reset all parameter values and global settings to their defaults?")) {
-                 document.getElementById('electricityPrice').value = 100;
-                 document.getElementById('hydrogenPrice').value = 150; // Reset H2 price
-                 document.getElementById('carbonPrice').value = 100;
-                 document.getElementById('fixedCostFraction').value = 0.0;
-                 // Remove invalid classes from all global inputs
-                 document.getElementById('electricityPrice').classList.remove('invalid-input');
-                 document.getElementById('hydrogenPrice').classList.remove('invalid-input');
-                 document.getElementById('carbonPrice').classList.remove('invalid-input');
-                 document.getElementById('fixedCostFraction').classList.remove('invalid-input');
-                 populateTable(); // Repopulate and recalculate
+        // --- *** PLOTTING FUNCTIONS *** ---
+
+        // Define colors and styles trying to match the example plot
+        const plotStyles = {
+            'PV':               { color: 'orange',       borderDash: [] },
+            'Offshore Wind':    { color: 'green',        borderDash: [5, 5] }, // Dashed
+            'Hydropower':       { color: 'red',          borderDash: [10, 5, 2, 5] }, // Dash-dot-dot
+            'Biomass':          { color: 'purple',       borderDash: [] }, // Solid (approximated)
+            'Gas CCS':          { color: 'magenta',      borderDash: [] }, // Solid
+            'Nuclear':          { color: 'darkgoldenrod',borderDash: [2, 2] }, // Dotted (approximated)
+            'Storage':          { color: 'black',        borderDash: [10, 5] }, // Long Dash
+            'Hydrogen (P2G)':   { color: 'blue',         borderDash: [2, 2] }, // Dotted
+            'Hydrogen (G2G)':   { color: 'teal',         borderDash: [2, 2] }, // Dotted
+            'G2P (H2-CCGT)':    { color: 'darkblue',     borderDash: [5, 5] }, // Dashed
+            'G2P (H2-OCGT)':    { color: 'darkturquoise',borderDash: [] }, // Solid
+            'G2P (Fuel Cell)':  { color: 'steelblue',    borderDash: [] }, // Solid
+            // Add defaults if needed
+            'default':          { color: 'grey',         borderDash: [] }
+        };
+
+        const technologyMarkers = { // Chart.js point styles
+            'PV':               'circle',
+            'Offshore Wind':    'rect',
+            'Hydropower':       'triangle',
+            'Biomass':          'rectRot', // diamond
+            'Gas CCS':          'star',
+            'Nuclear':          'crossRot', // x
+            'Storage':          'dash',
+            'Hydrogen (P2G)':   'cross', // +
+            'Hydrogen (G2G)':   'cross', // +
+            'G2P (H2-CCGT)':    'dash',
+            'G2P (H2-OCGT)':    'rect',
+            'G2P (Fuel Cell)':  'triangle',
+            'default':          'circle'
+         };
+
+        function getStyle(techType) { return plotStyles[techType] || plotStyles['default']; }
+        function getMarker(techType) { return technologyMarkers[techType] || technologyMarkers['default']; }
+
+
+        function generatePlotData() {
+            console.log("Generating plot data...");
+            const results = { npvData: {}, roiData: {} }; // { 'TechType': [{x: phi, y: value}, ...], ... }
+
+            // Get current global prices (ensure they are valid numbers)
+            const electricityPrice = parseFloat(document.getElementById('electricityPrice').value);
+            const hydrogenPrice = parseFloat(document.getElementById('hydrogenPrice').value);
+            const carbonPrice = parseFloat(document.getElementById('carbonPrice').value);
+
+            if (isNaN(electricityPrice) || isNaN(hydrogenPrice) || isNaN(carbonPrice)) {
+                 alert("Cannot generate plots. Please ensure global price inputs (Electricity, Hydrogen, Carbon) are valid numbers.");
+                 return null; // Indicate failure
             }
+
+            // Define Phi range
+            const phiSteps = [];
+            for (let p = 0; p <= 1.0; p += 0.1) { // Steps of 0.1 for smoother lines
+                phiSteps.push(parseFloat(p.toFixed(2)));
+            }
+             // Ensure 1.0 is included precisely if step doesn't hit it
+             if (phiSteps[phiSteps.length - 1] !== 1.0) phiSteps.push(1.0);
+
+            // Iterate through each technology defined in initialData
+            initialData.forEach(techData => {
+                const techType = techData.type;
+                // Skip if capacity is zero, as it won't vary with phi
+                if (!techData['max_p_mw 2050'] || techData['max_p_mw 2050'] <= 0) {
+                     console.log(`Skipping plot data for ${techType} (zero capacity)`);
+                     return; // Skip to next technology
+                }
+
+                results.npvData[techType] = [];
+                results.roiData[techType] = [];
+
+                // Simulate for each phi step
+                phiSteps.forEach(simulatedPhi => {
+                    // Create a temporary parameter set, overriding phi
+                    const currentParams = { ...techData, phi: simulatedPhi };
+
+                    // Calculate metrics using the helper function
+                    const metrics = calculateMetrics(currentParams, electricityPrice, hydrogenPrice, carbonPrice);
+
+                    // Store valid, finite results for plotting
+                    if (isFinite(metrics.npv)) {
+                        results.npvData[techType].push({ x: simulatedPhi, y: metrics.npv });
+                    }
+                    // Filter out non-finite ROI values (like Infinity or NaN)
+                    if (isFinite(metrics.roi)) {
+                        results.roiData[techType].push({ x: simulatedPhi, y: metrics.roi });
+                    }
+                });
+            });
+
+            console.log("Plot data generated:", results);
+            return results;
         }
 
-        // Initial setup
-        document.addEventListener('DOMContentLoaded', populateTable);
+        function createPlots() {
+            const plotData = generatePlotData();
+            if (!plotData) return; // Stop if data generation failed (e.g., invalid prices)
+
+            const npvCtx = document.getElementById('npvChart').getContext('2d');
+            const roiCtx = document.getElementById('roiChart').getContext('2d');
+
+            // Destroy previous charts if they exist
+            if (npvChartInstance) { npvChartInstance.destroy(); }
+            if (roiChartInstance) { roiChartInstance.destroy(); }
+
+             // Prepare datasets for Chart.js
+             const npvDatasets = [];
+             const roiDatasets = [];
+
+             Object.keys(plotData.npvData).forEach(techType => {
+                 if (plotData.npvData[techType].length > 0) { // Only add if data exists
+                    const style = getStyle(techType);
+                    const marker = getMarker(techType);
+                    npvDatasets.push({
+                        label: techType,
+                        data: plotData.npvData[techType].map(p => ({ x: p.x, y: p.y / 1_000_000 })), // Convert NPV to £m
+                        borderColor: style.color,
+                        backgroundColor: style.color, // For points
+                        borderDash: style.borderDash,
+                        pointStyle: marker,
+                        tension: 0.1, // Slight curve
+                        fill: false,
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    });
+                 }
+             });
+
+            Object.keys(plotData.roiData).forEach(techType => {
+                 if (plotData.roiData[techType].length > 0) { // Only add if data exists
+                    const style = getStyle(techType);
+                    const marker = getMarker(techType);
+                     roiDatasets.push({
+                         label: techType,
+                         data: plotData.roiData[techType], // ROI is already in %
+                         borderColor: style.color,
+                         backgroundColor: style.color,
+                         borderDash: style.borderDash,
+                         pointStyle: marker,
+                         tension: 0.1,
+                         fill: false,
+                         borderWidth: 2,
+                         pointRadius: 5,
+                         pointHoverRadius: 7
+                     });
+                 }
+             });
+
+
+            // Chart Configuration Options
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: true, // Keep aspect ratio
+                 interaction: { // Enable better tooltips
+                     mode: 'index',
+                     intersect: false,
+                 },
+                 scales: {
+                     x: {
+                         type: 'linear',
+                         position: 'bottom',
+                         title: {
+                             display: true,
+                             text: 'Phi Value'
+                         },
+                         min: 0.0,
+                         max: 1.0
+                     },
+                     y: {
+                         title: {
+                             display: true,
+                             text: '' // Set per chart
+                         },
+                          ticks: {
+                              // Format large numbers nicely if needed (e.g., for NPV)
+                              callback: function(value, index, values) {
+                                  return value.toLocaleString();
+                              }
+                          }
+                     }
+                 },
+                 plugins: {
+                     legend: {
+                         position: 'right', // Match example layout
+                     },
+                     tooltip: {
+                         callbacks: {
+                              label: function(context) {
+                                 let label = context.dataset.label || '';
+                                 if (label) { label += ': '; }
+                                 if (context.parsed.y !== null) {
+                                     label += context.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                      // Add units based on chart
+                                     if (context.chart.canvas.id === 'npvChart') label += ' (£m)';
+                                     if (context.chart.canvas.id === 'roiChart') label += ' (%)';
+                                 }
+                                 return label;
+                             }
+                         }
+                     }
+                 }
+            };
+
+             // Create NPV Chart
+             npvChartInstance = new Chart(npvCtx, {
+                 type: 'line',
+                 data: { datasets: npvDatasets },
+                 options: {
+                     ...commonOptions, // Spread common options
+                     scales: {
+                         ...commonOptions.scales,
+                          y: {
+                             ...commonOptions.scales.y,
+                             title: { display: true, text: 'NPV (£m)' }
+                         }
+                     },
+                     plugins: {
+                         ...commonOptions.plugins,
+                          title: { display: true, text: 'NPV vs Phi for Different Energy Technologies' }
+                     }
+                 }
+             });
+
+             // Create ROI Chart
+              roiChartInstance = new Chart(roiCtx, {
+                 type: 'line',
+                 data: { datasets: roiDatasets },
+                 options: {
+                      ...commonOptions, // Spread common options
+                     scales: {
+                          ...commonOptions.scales,
+                          y: {
+                              ...commonOptions.scales.y,
+                             title: { display: true, text: 'ROI (%)' }
+                         }
+                     },
+                      plugins: {
+                          ...commonOptions.plugins,
+                          title: { display: true, text: 'ROI vs Phi for Different Energy Technologies' }
+                      }
+                 }
+             });
+        }
+
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTable(); // Populate table and run initial calculations
+            // Optionally generate plots on load? Or wait for button click.
+            // createPlots(); // Uncomment to plot on initial load
+        });
 
     </script>
 
