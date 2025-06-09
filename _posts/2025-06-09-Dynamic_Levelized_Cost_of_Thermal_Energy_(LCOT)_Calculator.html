@@ -73,22 +73,6 @@ tags: [Blog]
         padding-bottom: 10px;
     }
     
-    .lcot-calculator-container .recalculate-button {
-        padding: 10px 20px;
-        font-size: 0.9em;
-        font-weight: bold;
-        color: #fff;
-        background-color: var(--primary-color);
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-    
-    .lcot-calculator-container .recalculate-button:hover {
-        background-color: var(--secondary-color);
-    }
-
     .lcot-calculator-container table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     .lcot-calculator-container th, .lcot-calculator-container td { border: 1px solid var(--border-color); padding: 12px; text-align: left; vertical-align: middle; }
     .lcot-calculator-container th { background-color: var(--table-header-bg); font-weight: 600; }
@@ -118,7 +102,6 @@ tags: [Blog]
 
     <div class="table-header-controls">
         <h2>LCOT Results Table</h2>
-                <button id="recalculateBtn" class="recalculate-button">Recalculate LCOT</button>
     </div>
     
     <table>
@@ -140,7 +123,6 @@ tags: [Blog]
     document.addEventListener('DOMContentLoaded', function() {
 
         // --- DOM ELEMENT REFERENCES ---
-        const recalculateBtn = document.getElementById('recalculateBtn');
         const globalInputs = document.querySelectorAll('#global-assumptions-container input');
         const tableInputs = document.querySelectorAll('.table-input');
         const tableBody = document.getElementById('lcot-table-body');
@@ -188,7 +170,6 @@ tags: [Blog]
         }
 
         // --- EVENT LISTENERS ---
-        recalculateBtn.addEventListener('click', calculateAllLCOT);
         globalInputs.forEach(input => input.addEventListener('input', calculateAllLCOT));
         tableInputs.forEach(input => input.addEventListener('input', calculateAllLCOT));
 
