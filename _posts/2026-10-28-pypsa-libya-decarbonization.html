@@ -1,0 +1,55 @@
+---
+title: "PyPSA-Libya: National Decarbonization and Hydrogen Export Pathways"
+created_at: 2026-10-28 00:00:00 EST
+author: Mohamed Abuella
+layout: post
+tags: [Blog, Energy Systems, PyPSA, Hydrogen]
+---
+
+<p>
+This project introduces <strong>PyPSA-Libya</strong>, a high-resolution, open-source energy system model designed to explore optimal transition pathways for the Libyan power sector and evaluate large-scale cross-border hydrogen export to Europe. Built as a country-specific extension of the global <strong>PyPSA-Earth</strong> framework, the model provides a transparent and reproducible benchmark for national decarbonization.
+</p>
+
+<p>
+The study investigates two primary frameworks: an electricity-only capacity expansion analysis comparing a zero-emission constraint against an unconstrained baseline at a 36-cluster resolution, and a sector-coupled hydrogen export study assessing the levelized cost of exporting 70 TWh/year of hydrogen under varying technological and policy scenarios, including a 100 EUR/tonne CO2 carbon tax regime.
+</p>
+
+<h2>Key Findings & Insights</h2>
+<ul>
+  <li><strong>Renewable Potential:</strong> High-irradiance southern inland nodes and coastal corridors heavily favor solar PV and onshore wind buildouts.</li>
+  <li><strong>Storage & Flexibility:</strong> Full domestic decarbonization significantly increases short-duration battery storage requirements to manage diurnal solar ramps.</li>
+  <li><strong>Blue vs. Green Hydrogen:</strong> Under carbon pricing regimes, steam methane reforming with carbon capture (SMR-CC) frequently out-competes pure green electrolysis, offering a lower-cost compliance pathway for cross-border export utilizing Libya's domestic hydrocarbon infrastructure.</li>
+  <li><strong>Water Sourcing:</strong> Seawater reverse osmosis (SWRO) desalination co-located at coastal clusters satisfies water requirements with a negligible impact on overall system costs and energy demand.</li>
+</ul>
+
+<h2>Interactive Dashboard</h2>
+
+<p>
+You can explore the interactive results, spatial maps, and scenario metrics directly via the embedded dashboard below:
+</p>
+
+<div style="width:100%; max-width:1200px; margin: 20px auto;">
+  <iframe
+    src="https://MohamedAbuella.github.io/PyPSA-Libya/"
+    width="100%"
+    height="900"
+    style="border:1px solid #ccc; border-radius:10px; background:#fff;"
+    loading="lazy">
+  </iframe>
+</div>
+
+<p style="font-size:0.9em; color:#666; text-align:center;">
+  <a href="https://MohamedAbuella.github.io/PyPSA-Libya/" target="_blank">
+    Open the interactive dashboard in a new tab
+  </a>
+</p>
+
+<h2>Code & Data Availability</h2>
+
+<p>
+The complete model code, input data time series, scenario configuration scripts, and optimization routines are publicly available in the <a href="https://github.com/MohamedAbuella/PyPSA-Libya" target="_blank">PyPSA-Libya GitHub Repository</a>.
+</p>
+
+<p style="font-size:0.9em; color:#666;">
+Note: For best experience, view this interactive dashboard on a desktop or tablet device.
+</p>
