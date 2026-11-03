@@ -7,35 +7,22 @@ tags: [Blog]
 ---
 
 <p>
-This project presents an open-source <strong>techno-economic optimization framework and educational case study</strong> evaluating multi-period capacity expansion, economies of scale, and operational decarbonization for regional biorefineries. In industrial energy and chemical systems planning, decision-makers face a critical trade-off between <strong>upfront capital economies of scale</strong> and <strong>recurring operational emissions liabilities</strong> under evolving climate policies.
+This project presents an interactive <strong>techno-economic optimization tutorial</strong> for industrial biorefinery planning. It models multi-period capacity expansion, non-linear capital scaling (<span style="font-family:monospace; font-weight:bold;">b = 0.70</span>), and merit-order economic dispatch across three regional production sites under escalating carbon tax regimes.
 </p>
-
-<p>
-The case study formulates a regional chemical manufacturing network across three candidate locations (<strong>Sites A, B, and C</strong>). It captures non-linear power-law capital cost degression (<span style="font-family:monospace; font-weight:bold;">b = 0.70</span>), strict standardized discrete sizing modules (Small: 30 kt/yr, Medium: 60 kt/yr, Large: 120 kt/yr), asset annualization via Capital Recovery Factors, analytical carbon price tipping points (<span style="font-family:monospace;">0 – 300 €/t CO₂</span>), and multi-period dynamic capacity expansion from 2020 to 2030 solved with merit-order economic dispatch.
-</p>
-
-<h2>Key Findings & Insights</h2>
-<ul>
-  <li><strong>Capital Scale vs. Variable Cost:</strong> In an untaxed baseline, Site A dominates the levelized production cost (157.78 €/t) despite having a higher variable cost, because deploying its maximum permitted Large class (120 kt/yr) leverages scale economies to dilute unit fixed capital charges to 67.78 €/t.</li>
-  <li><strong>Carbon Price Tipping Points:</strong> Analytical crossover analysis identifies strict policy regimes: Site A is least-cost from 0 to <strong>122.66 €/t CO₂</strong>; Site B dominates from <strong>122.66 to 169.15 €/t CO₂</strong>; and the lowest-emission facility (Site C, 0.20 t CO₂/t) becomes the most cost-competitive option above <strong>169.15 €/t CO₂</strong>.</li>
-  <li><strong>2030 Single-Site Deficit:</strong> A single facility cannot satisfy 2030 regional demand (110 kt/yr) because the system-wide maximum permitted plant size is Large at Site A (120 kt/yr), which yields an effective output of only 102 kt/yr at 85% availability—leaving an unavoidable 8 kt/yr deficit that necessitates multi-site deployment.</li>
-  <li><strong>Optimal Multi-Period Expansion:</strong> Discrete combinatorial optimization across all feasible multi-period candidate paths proves that building <strong>Medium at Site A</strong> in 2020, upgrading Site A to <strong>Large</strong> in 2030, and adding a <strong>Small plant at Site B</strong> in 2030 yields the global least-cost expansion trajectory.</li>
-  <li><strong>Average Cost Reduction:</strong> System-wide average production cost declines from <strong>184.57 €/t</strong> in 2020 to <strong>177.75 €/t</strong> in 2030 (−3.7%) because the Medium plant operates at partial load in 2020 (45 of 51 kt effective), whereas by 2030 the expanded Large plant runs at 100% baseload, spreading fixed capital charges over higher production volume.</li>
-</ul>
 
 <h2>Interactive Dashboard</h2>
 
 <p>
-Explore the interactive simulation results, vector PDF figures with embedded zoom controls, and dynamic data tables via the dashboard below:
+Explore the simulation modules, vector PDF figures with embedded zoom controls, and dynamic data tables via the interactive dashboard below:
 </p>
 
-<p style="font-size:0.9em; color:#666; text-align:center;">
+<p style="font-size:0.9em; color:#666; text-align:center; margin: 12px 0;">
   <a href="https://MohamedAbuella.github.io/Industrial-Capacity-Expansion-Tutorial/" target="_blank">
     Open the interactive dashboard in a new tab ↗
   </a>
 </p>
 
-<div style="width:100%; max-width:1200px; margin: 20px auto;">
+<div style="width:100%; max-width:1200px; margin: 15px auto;">
   <iframe
     src="https://MohamedAbuella.github.io/Industrial-Capacity-Expansion-Tutorial/"
     width="100%"
@@ -45,22 +32,21 @@ Explore the interactive simulation results, vector PDF figures with embedded zoo
   </iframe>
 </div>
 
-<p style="font-size:0.9em; color:#666; text-align:center;">
+<p style="font-size:0.9em; color:#666; text-align:center; margin: 12px 0;">
   <a href="https://MohamedAbuella.github.io/Industrial-Capacity-Expansion-Tutorial/" target="_blank">
     Open the interactive dashboard in a new tab ↗
   </a>
 </p>
 
-<h2>Code, Data & Tutorial Brief Availability</h2>
-
+<h2>Code & Resources</h2>
 <p>
-The complete mathematical formulation, Python optimization model, output tables, and vector graphics are openly available:
+The full problem formulation, Python optimization scripts, and datasets are open-source:
 </p>
 <ul>
-  <li><strong>Problem Formulation & Benchmark Brief:</strong> Download the detailed technical document: <a href="https://github.com/MohamedAbuella/Industrial-Capacity-Expansion-Tutorial/blob/main/tutorial_brief.pdf" target="_blank"><code>tutorial_brief.pdf</code></a>.</li>
-  <li><strong>Source Code & Scripts:</strong> Clone and inspect the optimization routines in the <a href="https://github.com/MohamedAbuella/Industrial-Capacity-Expansion-Tutorial" target="_blank">Industrial-Capacity-Expansion-Tutorial GitHub Repository</a>.</li>
+  <li><strong>Tutorial Brief & Formulation:</strong> <a href="https://github.com/MohamedAbuella/Industrial-Capacity-Expansion-Tutorial/blob/main/Tutorial_brief.pdf" target="_blank"><code>Tutorial_brief.pdf</code> ↗</a></li>
+  <li><strong>GitHub Repository:</strong> <a href="https://github.com/MohamedAbuella/Industrial-Capacity-Expansion-Tutorial" target="_blank">Industrial-Capacity-Expansion-Tutorial ↗</a></li>
 </ul>
 
-<p style="font-size:0.9em; color:#666;">
-Note: For the best experience, view the embedded interactive dashboard on a desktop or tablet display.
+<p style="font-size:0.85em; color:#777;">
+Note: For the best experience, use a desktop or tablet browser to interact with the dashboard.
 </p>
