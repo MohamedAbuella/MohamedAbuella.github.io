@@ -1,0 +1,50 @@
+---
+title: "OpenAlex Review Dashboard: Automated Literature Search, Bibliometric & Topic Analysis"
+created_at: 2026-11-14 00:00:00 EST
+author: Mohamed Abuella
+layout: post
+---
+
+<p>
+This project presents an interactive, browser-based dashboard that queries the open <a href="https://openalex.org" target="_blank">OpenAlex</a> scholarly database to collect, analyze, and synthesize academic literature in real time. Using Boolean search operators and metadata filters (author, affiliation, venue, country, work type, and citation threshold), it performs bibliometric profiling, TF-IDF and n-gram text mining, abbreviation extraction, and Latent Dirichlet Allocation (LDA) topic modeling, ranking the most aligned papers for instant export as a clean <code>.bib</code> database.
+</p>
+
+<h2>Interactive Dashboard</h2>
+
+<p>
+Enter a search query or apply advanced metadata filters to fetch relevant works with abstracts and citation counts directly from the OpenAlex API. Across five interactive views, you can inspect top journals, leading authors, yearly publication trends, annual citation outliers (via the 1.5&times;IQR rule), TF-IDF terms, bigrams, extracted abbreviations, word correlations, customizable LDA topic clusters, and an alignment-ranked literature table with one-click <code>.bib</code> download:
+</p>
+
+<p style="font-size:0.9em; color:#666; text-align:center; margin: 12px 0;">
+  <a href="https://github.io" target="_blank">
+    Open the interactive dashboard in a new tab ↗
+  </a>
+</p>
+
+<div style="width:100%; max-width:1200px; margin: 15px auto;">
+  <iframe
+    src="https://github.io"
+    width="100%"
+    height="920"
+    style="border:1px solid #cbd5e1; border-radius:10px; background:#fff; box-shadow: 0 4px 12px rgba(0,0,0,0.06);"
+    loading="lazy">
+  </iframe>
+</div>
+
+<p style="font-size:0.9em; color:#666; text-align:center; margin: 12px 0;">
+  <a href="https://github.io" target="_blank">
+    Open the interactive dashboard in a new tab ↗
+  </a>
+</p>
+
+<h2>Code &amp; Resources</h2>
+<p>
+The dashboard runs entirely client-side in your browser with zero setup required. You can also download saved <code>OpenAlex_Keyword_N_Mon_Year.bib</code> files directly from the fifth tab for use in reference managers or downstream bibliometric tools:
+</p>
+<ul>
+  <li><strong>GitHub Repository:</strong> <a href="https://github.com/MohamedAbuella/Scholar_Open-Alex_Analytics" target="_blank">Scholar_Open-Alex_Analytics ↗</a></li>
+</ul>
+
+<p style="font-size:0.85em; color:#777;">
+Note: For the best experience, use a desktop or tablet browser to interact with the dashboard.
+</p>
